@@ -153,20 +153,28 @@ Phase 4: Expansion 🔭 PLANNED
 ```bash
 # Clone the bastion
 git clone https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY.git
-
-# Enter the gate
 cd DEFiNE-ZiON-AiTTY
-
-# Install the gears
 npm install
+```
 
-# Define your system
-npm start
+**macOS / Linux**
+```bash
+chmod +x launch.sh stop.sh
+./launch.sh          # 서버 시작 + 브라우저 자동 오픈
+./stop.sh            # 서버 종료
+```
+
+**Windows**
+```bat
+launch.bat           ← 더블클릭 (시스템 트레이 앱으로 실행)
+```
+
+**공통 (터미널)**
+```bash
+npm start            # 포그라운드 실행
 ```
 
 브라우저에서 `http://127.0.0.1:7654` 접속 후 마스터 패스워드를 설정하세요.
-
-> **Windows 사용자**: `launch.bat` 더블클릭으로 시스템 트레이 앱으로 실행 가능.
 
 ---
 
