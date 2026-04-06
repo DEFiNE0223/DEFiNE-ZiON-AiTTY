@@ -67,7 +67,7 @@ AI에게 시스템 권한을 주는 것은 위험합니다. 그래서 우리는 
 
 ### ⚡ 3. Unified Mission Control
 
-MobaXterm의 편의성과 AI의 지능을 결합했습니다.
+기존 ssh 툴의 편의성과 AI의 지능을 결합했습니다.
 
 - **High-Speed Web-SSH** — xterm.js 기반 로우 레이턴시 터미널, 분할 화면 지원
 - **Real-time AI Sidebar** — 터미널 바로 옆에서 대화·분석·명령을 내리는 일체형 인터페이스
