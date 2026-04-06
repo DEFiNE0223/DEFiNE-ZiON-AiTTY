@@ -37,12 +37,10 @@ function Stop-ExistingServer {
 function Start-Server {
     Stop-ExistingServer
     $proc = Start-Process `
-        -FilePath    "node" `
-        -ArgumentList "server.js" `
+        -FilePath    "cmd" `
+        -ArgumentList "/c node server.js >> `"$logFile`" 2>&1" `
         -WorkingDirectory $scriptDir `
         -WindowStyle Hidden `
-        -RedirectStandardOutput $logFile `
-        -RedirectStandardError  $logFile `
         -PassThru
     $proc.Id | Out-File $pidFile -Encoding ascii
     return $proc
