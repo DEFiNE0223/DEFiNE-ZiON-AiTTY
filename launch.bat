@@ -1,11 +1,10 @@
 @echo off
 title DEFiNE-ZiON-AiTTY
 cd /d "%~dp0"
-chcp 65001 >nul 2>&1
 
 echo.
 echo   DEFiNE-ZiON-AiTTY  ^|  Mission Control
-echo   ─────────────────────────────────────
+echo   ----------------------------------------
 echo.
 
 :: Node.js 확인
@@ -32,19 +31,13 @@ if not exist "node_modules" (
 :: data 폴더 생성
 if not exist "data" mkdir data
 
-:: 기존 포트 7654 프로세스 정리
-for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr ":7654 "') do (
-    if not "%%a"=="0" (
-        echo [정리] 포트 7654 기존 프로세스 종료 중...
-        taskkill /PID %%a /F >nul 2>&1
-        timeout /t 1 /nobreak >nul
-    )
-)
+:: 기존 포트 7654 프로세스 정리 (PowerShell 사용)
+powershell -Command "$c=Get-NetTCPConnection -LocalPort 7654 -EA SilentlyContinue|Select -First 1;if($c -and $c.OwningProcess -gt 4){Stop-Process -Id $c.OwningProcess -Force -EA SilentlyContinue;Start-Sleep -Milliseconds 600}"
 
 echo [시작] ZiON-AiTTY 트레이 앱을 시작합니다...
 echo        우측 하단 트레이 아이콘을 확인하세요.
 echo.
-echo   우클릭  - 메뉴 (열기 / 재시작 / 로그 / 종료)
+echo   우클릭   - 메뉴 (열기 / 재시작 / 로그 / 종료)
 echo   더블클릭 - 브라우저 열기
 echo.
 
@@ -54,8 +47,8 @@ powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File "%~dp0tray.ps1"
 if errorlevel 1 (
     echo.
     echo [오류] 트레이 앱 실행 실패.
-    echo        PowerShell 실행 정책 문제일 수 있습니다.
-    echo        아래 명령을 관리자 PowerShell에서 실행해보세요:
+    echo        관리자 PowerShell에서 아래 명령 실행 후 다시 시도하세요:
     echo        Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+    echo.
     pause
 )
