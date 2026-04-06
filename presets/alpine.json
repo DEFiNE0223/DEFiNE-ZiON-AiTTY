@@ -1,0 +1,31 @@
+{
+  "id": "alpine", "name": "Alpine Linux", "icon": "🏔️", "color": "#0D597F",
+  "pkg": "apk",
+  "categories": [
+    { "label": "📦 패키지", "commands": [
+      { "label": "업데이트",         "cmd": "sudo apk update && apk upgrade" },
+      { "label": "패키지 검색",      "cmd": "apk search " },
+      { "label": "설치",             "cmd": "sudo apk add " },
+      { "label": "삭제",             "cmd": "sudo apk del " },
+      { "label": "설치 목록",        "cmd": "apk list --installed" }
+    ]},
+    { "label": "🌐 네트워크", "commands": [
+      { "label": "IP 확인",          "cmd": "ip addr show" },
+      { "label": "포트 청취 확인",   "cmd": "ss -tulpn" },
+      { "label": "방화벽 상태",      "cmd": "sudo iptables -L -n" },
+      { "label": "DNS 확인",         "cmd": "cat /etc/resolv.conf" }
+    ]},
+    { "label": "⚙️ 시스템", "commands": [
+      { "label": "OS 정보",          "cmd": "cat /etc/alpine-release && uname -r" },
+      { "label": "디스크 사용량",    "cmd": "df -h" },
+      { "label": "메모리",           "cmd": "free -m" },
+      { "label": "프로세스",         "cmd": "top" }
+    ]},
+    { "label": "🔧 서비스 (OpenRC)", "commands": [
+      { "label": "서비스 목록",      "cmd": "rc-status" },
+      { "label": "서비스 시작",      "cmd": "sudo rc-service  start" },
+      { "label": "서비스 중지",      "cmd": "sudo rc-service  stop" },
+      { "label": "부팅 시 활성화",   "cmd": "sudo rc-update add " }
+    ]}
+  ]
+}
