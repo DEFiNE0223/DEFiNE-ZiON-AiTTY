@@ -9,7 +9,7 @@ window.TermManager = (() => {
   const LOG_BUFFER_SIZE = 5000;   // lines kept in memory
   const LOG_FLUSH_INTERVAL = 5000; // ms between server-side log saves
 
-  // ── 출력 리스너 (AI 에이전트 캡처용) ─────────────────────────────
+  // ── Output listeners (for AI agent capture) ───────────────────────
   const _outputListeners = [];
   function addOutputListener(fn)    { _outputListeners.push(fn); }
   function removeOutputListener(fn) {
@@ -42,20 +42,20 @@ window.TermManager = (() => {
       } else if (msg.type === 'connected') {
         pane.connected = true;
         pane.waitingClose = false;
-        pane.term.write('\r\n\x1b[32m✓ 연결됨\x1b[0m\r\n');
+        pane.term.write('\r\n\x1b[32m✓ Connected\x1b[0m\r\n');
         hideOverlay(msg.paneId);
         App.updateStatusBar();
         updateTabStatus(msg.paneId, true);
       } else if (msg.type === 'disconnected') {
         pane.connected = false;
         pane.waitingClose = true;
-        pane.term.write('\r\n\x1b[31m✗ 연결 끊김\x1b[0m  \x1b[90m[Enter] 닫기\x1b[0m\r\n');
+        pane.term.write('\r\n\x1b[31m✗ Disconnected\x1b[0m  \x1b[90m[Enter] Close\x1b[0m\r\n');
         App.updateStatusBar();
         updateTabStatus(msg.paneId, false);
       } else if (msg.type === 'error') {
         pane.connected = false;
         pane.waitingClose = true;
-        pane.term.write(`\r\n\x1b[31m[오류] ${msg.message}\x1b[0m  \x1b[90m[Enter] 닫기\x1b[0m\r\n`);
+        pane.term.write(`\r\n\x1b[31m[Error] ${msg.message}\x1b[0m  \x1b[90m[Enter] Close\x1b[0m\r\n`);
         App.notify(msg.message, 'error');
         updateTabStatus(msg.paneId, false);
       }
@@ -123,20 +123,20 @@ window.TermManager = (() => {
     div.innerHTML = `
       <div class="pane-header">
         <label style="display:flex;align-items:center;gap:4px;cursor:pointer">
-          <input type="checkbox" onchange="TermManager.toggleMultiSelect('${paneId}',this.checked)" data-tip="다중 명령 실행 선택">
+          <input type="checkbox" onchange="TermManager.toggleMultiSelect('${paneId}',this.checked)" data-tip="Select for multi-command execution">
         </label>
         <span class="pane-title" id="ptitle_${paneId}">${title}</span>
-        <button class="pane-btn" onclick="TermManager.splitH('${paneId}')" data-tip="좌우 분할"><span class="split-icon h"><em></em><em></em></span></button>
-        <button class="pane-btn" onclick="TermManager.splitV('${paneId}')" data-tip="상하 분할"><span class="split-icon v"><em></em><em></em></span></button>
-        <button class="pane-btn" onclick="PresetPanel.toggle('${paneId}')" data-tip="OS 명령 패널">🔧</button>
-        <button class="pane-btn" onclick="AiPanel.toggle('${paneId}')" data-tip="AI 어시스턴트">🤖</button>
-        <button class="pane-btn" onclick="TermManager.closePane('${paneId}')" data-tip="패널 닫기" style="color:var(--red)">✕</button>
+        <button class="pane-btn" onclick="TermManager.splitH('${paneId}')" data-tip="Split Horizontal"><span class="split-icon h"><em></em><em></em></span></button>
+        <button class="pane-btn" onclick="TermManager.splitV('${paneId}')" data-tip="Split Vertical"><span class="split-icon v"><em></em><em></em></span></button>
+        <button class="pane-btn" onclick="PresetPanel.toggle('${paneId}')" data-tip="OS Command Panel">🔧</button>
+        <button class="pane-btn" onclick="AiPanel.toggle('${paneId}')" data-tip="AI Assistant">🤖</button>
+        <button class="pane-btn" onclick="TermManager.closePane('${paneId}')" data-tip="Close Panel" style="color:var(--red)">✕</button>
       </div>
       <div class="pane-terminal" id="pterm_${paneId}"></div>
       <div class="pane-overlay" id="poverlay_${paneId}">
         <div style="font-size:32px">🔌</div>
         <h3>${title}</h3>
-        <p>세션에 연결 중...</p>
+        <p>Connecting to session...</p>
       </div>`;
     return div;
   }
@@ -283,7 +283,7 @@ window.TermManager = (() => {
     e.stopPropagation();
     const tab = state.tabs.find(t => t.id === tabId);
     if (!tab) return;
-    if (!confirm(`"${tab.label}" 탭을 닫으시겠습니까?`)) return;
+    if (!confirm(`Close tab "${tab.label}"?`)) return;
     for (const paneId of tab.panes) closePane(paneId, true);
     state.tabs = state.tabs.filter(t => t.id !== tabId);
     if (state.activeTabId === tabId) {
@@ -380,7 +380,7 @@ window.TermManager = (() => {
     const bar = document.getElementById('multi-exec-bar');
     if (state.selectedPanes.size > 0) {
       bar.classList.add('visible');
-      document.getElementById('multi-exec-label').textContent = `${state.selectedPanes.size}개 서버 선택됨`;
+      document.getElementById('multi-exec-label').textContent = `${state.selectedPanes.size} server(s) selected`;
     } else {
       bar.classList.remove('visible');
     }
@@ -393,12 +393,12 @@ window.TermManager = (() => {
       ws.send(JSON.stringify({ type: 'multi_exec', paneIds: [...state.selectedPanes], command: cmd }));
     }
     document.getElementById('multi-exec-input').value = '';
-    App.notify(`${state.selectedPanes.size}개 서버에 명령 전송됨`, 'success');
+    App.notify(`Command sent to ${state.selectedPanes.size} server(s)`, 'success');
   }
 
   // ── Other ────────────────────────────────────────────────────────
   function closePane(paneId, skipConfirm = false) {
-    if (!skipConfirm && !confirm('이 패널을 닫으시겠습니까?')) return;
+    if (!skipConfirm && !confirm('Close this panel?')) return;
     if (ws && ws.readyState === WebSocket.OPEN)
       ws.send(JSON.stringify({ type: 'disconnect', paneId }));
     stopLogFlush(paneId);
@@ -453,7 +453,7 @@ window.TermManager = (() => {
     if (state.selectedPanes.size === 0) {
       document.getElementById('multi-exec-bar').classList.remove('visible');
     } else {
-      document.getElementById('multi-exec-label').textContent = `${state.selectedPanes.size}개 서버 선택됨`;
+      document.getElementById('multi-exec-label').textContent = `${state.selectedPanes.size} server(s) selected`;
     }
 
     App.updateStatusBar();

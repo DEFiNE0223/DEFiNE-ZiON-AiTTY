@@ -1,8 +1,8 @@
 /**
- * routes/ai.js — AI API Key 관리 & 다중 모델 채팅 프록시
+ * routes/ai.js — AI API Key management & multi-model chat proxy
  *
- * 지원 프로바이더: Claude(Anthropic), GPT(OpenAI), Gemini(Google), Groq
- * API Key는 마스터 패스워드 기반 AES-256-GCM으로 암호화 저장
+ * Supported providers: Claude(Anthropic), GPT(OpenAI), Gemini(Google), Groq
+ * API Keys are encrypted with AES-256-GCM using the master password
  */
 const express = require('express');
 const https   = require('https');
@@ -12,7 +12,7 @@ const cryptoLib = require('../lib/crypto');
 const store     = require('../lib/store');
 const { getMaster } = require('./auth');
 
-// ── 지원 프로바이더 정의 ──────────────────────────────────────────────
+// ── Supported provider definitions ───────────────────────────────────
 const PROVIDERS = {
   claude: {
     label:  'Claude (Anthropic)',
@@ -37,14 +37,14 @@ const PROVIDERS = {
   },
 };
 
-// ── 미들웨어: 잠금 상태 확인 ─────────────────────────────────────────
+// ── Middleware: check lock state ──────────────────────────────────────
 function requireUnlocked(req, res, next) {
-  if (!getMaster()) return res.status(401).json({ error: '잠금 해제 필요' });
+  if (!getMaster()) return res.status(401).json({ error: 'Unlock required' });
   next();
 }
 
 // ── GET /api/ai/providers ─────────────────────────────────────────────
-// 프로바이더 목록 + 키 등록 여부 반환
+// Return provider list + whether key is registered
 router.get('/providers', (req, res) => {
   const keys = store.readApiKeys();
   const list = Object.entries(PROVIDERS).map(([id, p]) => ({
@@ -58,11 +58,11 @@ router.get('/providers', (req, res) => {
 });
 
 // ── POST /api/ai/keys ─────────────────────────────────────────────────
-// API Key 저장 (AES-256-GCM 암호화)
+// Save API Key (AES-256-GCM encrypted)
 router.post('/keys', requireUnlocked, (req, res) => {
   const { provider, key } = req.body;
-  if (!PROVIDERS[provider]) return res.status(400).json({ error: '알 수 없는 프로바이더' });
-  if (!key || !key.trim())  return res.status(400).json({ error: 'API Key를 입력하세요' });
+  if (!PROVIDERS[provider]) return res.status(400).json({ error: 'Unknown provider' });
+  if (!key || !key.trim())  return res.status(400).json({ error: 'Please enter an API Key' });
 
   const master = getMaster();
   const keys   = store.readApiKeys();
@@ -80,22 +80,22 @@ router.delete('/keys/:provider', requireUnlocked, (req, res) => {
 });
 
 // ── POST /api/ai/chat ────────────────────────────────────────────────
-// AI 채팅 프록시 (스트리밍 없는 단일 응답)
+// AI chat proxy (single response, no streaming)
 router.post('/chat', requireUnlocked, async (req, res) => {
   const { provider, model, messages, systemPrompt } = req.body;
 
   if (!PROVIDERS[provider])
-    return res.status(400).json({ error: '알 수 없는 프로바이더' });
+    return res.status(400).json({ error: 'Unknown provider' });
 
   const keys = store.readApiKeys();
   if (!keys[provider])
-    return res.status(400).json({ error: `${PROVIDERS[provider].label} API Key가 없습니다` });
+    return res.status(400).json({ error: `${PROVIDERS[provider].label} API Key not found` });
 
   let apiKey;
   try {
     apiKey = cryptoLib.decrypt(keys[provider], getMaster());
   } catch {
-    return res.status(500).json({ error: 'API Key 복호화 실패' });
+    return res.status(500).json({ error: 'API Key decryption failed' });
   }
 
   try {
@@ -105,7 +105,7 @@ router.post('/chat', requireUnlocked, async (req, res) => {
       case 'openai': content = await callOpenAI(apiKey, model, messages, systemPrompt, 'openai'); break;
       case 'groq':   content = await callOpenAI(apiKey, model, messages, systemPrompt, 'groq'); break;
       case 'gemini': content = await callGemini(apiKey, model, messages, systemPrompt); break;
-      default: return res.status(400).json({ error: '지원하지 않는 프로바이더' });
+      default: return res.status(400).json({ error: 'Unsupported provider' });
     }
     res.json({ ok: true, content });
   } catch (e) {
@@ -114,7 +114,7 @@ router.post('/chat', requireUnlocked, async (req, res) => {
   }
 });
 
-// ── 공통 HTTPS 요청 헬퍼 ────────────────────────────────────────────
+// ── Common HTTPS request helper ──────────────────────────────────────
 function httpsPost(hostname, path, headers, body) {
   return new Promise((resolve, reject) => {
     const payload = JSON.stringify(body);
@@ -141,7 +141,7 @@ function httpsPost(hostname, path, headers, body) {
   });
 }
 
-// ── Anthropic Claude ─────────────────────────────────────────────────
+// ── Anthropic Claude ──────────────────────────────────────────────────
 async function callClaude(apiKey, model, messages, systemPrompt) {
   const body = {
     model:      model || 'claude-3-5-haiku-20241022',
@@ -156,12 +156,12 @@ async function callClaude(apiKey, model, messages, systemPrompt) {
     body
   );
 
-  // ── 전체 응답 로그 (디버그) ──
+  // ── Full response log (debug) ──
   console.log('[Claude HTTP]', result._status, JSON.stringify(result).slice(0, 500));
 
   if (result._raw) {
     console.error('[Claude Raw Response]', result._raw);
-    throw new Error('API 응답 파싱 실패: ' + result._raw.slice(0, 300));
+    throw new Error('API response parse failed: ' + result._raw.slice(0, 300));
   }
   if (result.error || (result._status && result._status >= 400)) {
     const errDetail = result.error
@@ -170,10 +170,10 @@ async function callClaude(apiKey, model, messages, systemPrompt) {
     console.error('[Claude API Error]', errDetail);
     throw new Error(errDetail);
   }
-  return result.content?.[0]?.text || '(빈 응답)';
+  return result.content?.[0]?.text || '(empty response)';
 }
 
-// ── OpenAI / Groq (OpenAI 호환 API) ──────────────────────────────────
+// ── OpenAI / Groq (OpenAI-compatible API) ────────────────────────────
 async function callOpenAI(apiKey, model, messages, systemPrompt, provider) {
   const msgs = [];
   if (systemPrompt) msgs.push({ role: 'system', content: systemPrompt });
@@ -187,24 +187,24 @@ async function callOpenAI(apiKey, model, messages, systemPrompt, provider) {
     { 'Authorization': `Bearer ${apiKey}` },
     { model: model || 'gpt-4o-mini', messages: msgs, max_tokens: 4096 }
   );
-  if (result._raw) throw new Error('API 응답 파싱 실패: ' + result._raw.slice(0, 200));
+  if (result._raw) throw new Error('API response parse failed: ' + result._raw.slice(0, 200));
   if (result.error || (result._status && result._status >= 400)) {
     const errDetail = result.error
       ? `[${result.error.code || result._status}] ${result.error.message || JSON.stringify(result.error)}`
       : `HTTP ${result._status}: ${JSON.stringify(result)}`;
     throw new Error(errDetail);
   }
-  return result.choices?.[0]?.message?.content || '(빈 응답)';
+  return result.choices?.[0]?.message?.content || '(empty response)';
 }
 
 // ── Google Gemini ─────────────────────────────────────────────────────
 async function callGemini(apiKey, model, messages, systemPrompt) {
-  // Gemini는 user/model 교대 형식 필요
+  // Gemini requires alternating user/model format
   const contents = [];
   for (const m of messages) {
-    // Gemini: role은 'user' 또는 'model'
+    // Gemini: role is 'user' or 'model'
     const role = m.role === 'assistant' ? 'model' : 'user';
-    // 연속된 같은 role이 있으면 병합
+    // Merge consecutive messages with the same role
     if (contents.length && contents[contents.length - 1].role === role) {
       contents[contents.length - 1].parts[0].text += '\n' + m.content;
     } else {
@@ -222,14 +222,14 @@ async function callGemini(apiKey, model, messages, systemPrompt) {
     {},
     body
   );
-  if (result._raw) throw new Error('API 응답 파싱 실패: ' + result._raw.slice(0, 200));
+  if (result._raw) throw new Error('API response parse failed: ' + result._raw.slice(0, 200));
   if (result.error || (result._status && result._status >= 400)) {
     const errDetail = result.error
       ? `[${result.error.status || result._status}] ${result.error.message || JSON.stringify(result.error)}`
       : `HTTP ${result._status}: ${JSON.stringify(result)}`;
     throw new Error(errDetail);
   }
-  return result.candidates?.[0]?.content?.parts?.[0]?.text || '(빈 응답)';
+  return result.candidates?.[0]?.content?.parts?.[0]?.text || '(empty response)';
 }
 
 module.exports = router;

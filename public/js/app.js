@@ -51,10 +51,10 @@ window.App = (() => {
   function showSetupOverlay() {
     const box = document.getElementById('auth-box');
     box.querySelector('.logo').textContent = '🔐';
-    box.querySelector('h1').textContent = 'WebSSH 설정';
-    box.querySelector('p').textContent = '마스터 패스워드를 설정하세요';
-    document.getElementById('auth-input').placeholder = '새 마스터 패스워드';
-    document.getElementById('auth-btn').textContent = '설정하기';
+    box.querySelector('h1').textContent = 'WebSSH Setup';
+    box.querySelector('p').textContent = 'Set your Master Password';
+    document.getElementById('auth-input').placeholder = 'New Master Password';
+    document.getElementById('auth-btn').textContent = 'Set Password';
     document.getElementById('auth-btn').onclick = async () => {
       const pw = document.getElementById('auth-input').value;
       try {
@@ -62,7 +62,7 @@ window.App = (() => {
         state.unlocked = true;
         hideAuthOverlay();
         await loadAll();
-        notify('마스터 패스워드가 설정되었습니다', 'success');
+        notify('Master password has been set', 'success');
       } catch (e) {
         document.getElementById('auth-error').textContent = e.message;
       }
@@ -74,10 +74,10 @@ window.App = (() => {
     const box = document.getElementById('auth-box');
     box.querySelector('.logo').textContent = '🔒';
     box.querySelector('h1').textContent = 'WebSSH';
-    box.querySelector('p').textContent = '마스터 패스워드로 잠금 해제';
-    document.getElementById('auth-input').placeholder = '마스터 패스워드';
+    box.querySelector('p').textContent = 'Unlock with Master Password';
+    document.getElementById('auth-input').placeholder = 'Master Password';
     document.getElementById('auth-input').value = '';
-    document.getElementById('auth-btn').textContent = '잠금 해제';
+    document.getElementById('auth-btn').textContent = 'Unlock';
     document.getElementById('auth-btn').onclick = async () => {
       const pw = document.getElementById('auth-input').value;
       try {
@@ -85,9 +85,9 @@ window.App = (() => {
         state.unlocked = true;
         hideAuthOverlay();
         await loadAll();
-        notify('잠금 해제됨', 'success');
+        notify('Unlocked', 'success');
       } catch (e) {
-        document.getElementById('auth-error').textContent = '패스워드가 틀렸습니다';
+        document.getElementById('auth-error').textContent = 'Incorrect password';
       }
     };
     document.getElementById('auth-overlay').classList.remove('hidden');
@@ -99,7 +99,7 @@ window.App = (() => {
   function hideAuthOverlay() {
     document.getElementById('auth-overlay').classList.add('hidden');
     document.getElementById('status-bar').className = 'unlocked';
-    document.getElementById('sb-lock-status').textContent = '🔓 잠금 해제됨';
+    document.getElementById('sb-lock-status').textContent = '🔓 Unlocked';
   }
 
   async function lock() {
@@ -110,7 +110,7 @@ window.App = (() => {
     // Disconnect all panes
     for (const paneId in state.panes) window.TermManager.disconnectPane(paneId);
     document.getElementById('status-bar').className = 'locked';
-    document.getElementById('sb-lock-status').textContent = '🔒 잠금됨';
+    document.getElementById('sb-lock-status').textContent = '🔒 Locked';
     showUnlockOverlay();
   }
 
@@ -129,16 +129,16 @@ window.App = (() => {
   }
 
   function updateStatusBar() {
-    document.getElementById('sb-sessions').textContent = `💻 ${state.sessions.length} 세션`;
+    document.getElementById('sb-sessions').textContent = `💻 ${state.sessions.length} Session(s)`;
     const active = Object.values(state.panes).filter(p => p.connected).length;
-    document.getElementById('sb-connected').textContent = active ? `🟢 ${active} 연결됨` : '';
+    document.getElementById('sb-connected').textContent = active ? `🟢 ${active} Connected` : '';
   }
 
   // ── Init ─────────────────────────────────────────────────────────
   function init() {
     // Lock button
     document.getElementById('btn-lock').addEventListener('click', () => {
-      if (confirm('잠금하시겠습니까?')) lock();
+      if (confirm('Lock the application?')) lock();
     });
 
     // Enter key on auth input

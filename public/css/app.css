@@ -215,7 +215,7 @@ input, select, textarea { font-family: inherit; font-size: 13px; }
   transition: opacity 0.12s ease;
 }
 #ws-tooltip.visible { opacity: 1; }
-/* 화살표는 JS로 위/아래 상황에 따라 클래스로 제어 */
+/* Arrow direction (up/down) is controlled by JS via class */
 #ws-tooltip.arrow-down::after {
   content: '';
   position: absolute;
@@ -241,18 +241,18 @@ input, select, textarea { font-family: inherit; font-size: 13px; }
 input[type="checkbox"] { accent-color: var(--blue); width: 14px; height: 14px; }
 
 /* ── Split button icons ─────────────────────────────────────────────
-   .h = 좌우 분할: 두 박스가 나란히 (합치면 정사각형)
-   .v = 상하 분할: 두 박스가 위아래로 (합치면 정사각형)
+   .h = split horizontal: two boxes side by side (together ~square)
+   .v = split vertical:   two boxes stacked top/bottom (together ~square)
 ────────────────────────────────────────────────────────────────────── */
 .split-icon { display: inline-flex; gap: 2px; vertical-align: middle; pointer-events: none; }
 .split-icon em { display: block; background: currentColor; border-radius: 1px; font-style: normal; }
-/* 좌우: 좁고 긴 박스 두 개 = 전체 비율 약 정사각형 */
+/* Horizontal: two narrow tall boxes = overall ~square ratio */
 .split-icon.h em { width: 6px; height: 13px; }
-/* 상하: 넓고 납작한 박스 두 개 = 전체 비율 약 정사각형 */
+/* Vertical: two wide flat boxes = overall ~square ratio */
 .split-icon.v { flex-direction: column; }
 .split-icon.v em { width: 14px; height: 5px; }
 
-/* ── AI 패널 — 오른쪽 슬라이드 (preset-panel과 동일한 레이어 구조) ── */
+/* ── AI panel — slides in from right (same layer structure as preset-panel) ── */
 #ai-chat-panel {
   position: absolute; right: 0; top: 0; bottom: 0;
   width: 380px;
@@ -309,7 +309,7 @@ input[type="checkbox"] { accent-color: var(--blue); width: 14px; height: 14px; }
 .ai-msg.user .ai-msg-meta { justify-content: flex-end; }
 .ai-msg.user .ai-msg-content { text-align: left; }
 
-/* 코드 블록 */
+/* Code block */
 .ai-code-block {
   background: var(--bg0); border: 1px solid var(--bg3);
   border-radius: 6px; margin: 6px 0; overflow: hidden;
@@ -335,22 +335,22 @@ input[type="checkbox"] { accent-color: var(--blue); width: 14px; height: 14px; }
 .ai-run-btn.agent { color: var(--yellow); }
 .ai-run-btn.agent:hover { background: var(--bg4); color: var(--peach); }
 
-/* 에이전트 모드 버튼 ON 상태 */
+/* Agent mode button ON state */
 #ai-agent-btn.active { color: var(--yellow); background: rgba(249,226,175,0.15); border-radius: 4px; }
 
-/* 인라인 코드 */
+/* Inline code */
 .ai-inline-code {
   background: var(--bg0); padding: 1px 4px;
   border-radius: 3px; font-family: var(--font-mono); font-size: 11px;
 }
 
-/* 로딩 애니메이션 */
+/* Loading animation */
 .ai-typing { display: inline-flex; gap: 4px; padding: 4px 0; }
 .ai-typing::before, .ai-typing::after,
 .ai-typing { animation: dotpulse 1.2s infinite; }
 @keyframes dotpulse { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
 
-/* 입력 영역 */
+/* Input area */
 #ai-chat-bottom {
   border-top: 1px solid var(--bg3);
   display: flex; flex-direction: column;
@@ -389,7 +389,7 @@ input[type="checkbox"] { accent-color: var(--blue); width: 14px; height: 14px; }
 }
 #ai-toolbar button { flex-shrink: 0; }
 
-/* ── AI 사이드바 탭 내용 ─────────────────────────────────────────── */
+/* ── AI sidebar tab content ─────────────────────────────────────────── */
 #ai-panel { display: none; }
 #ai-panel.active { display: block; }
 

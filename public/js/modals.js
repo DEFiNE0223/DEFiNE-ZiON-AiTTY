@@ -16,7 +16,7 @@ window.Modals = (() => {
   function showSessionModal(session) {
     const isEdit = !!session;
     const m = document.getElementById('modal-session');
-    m.querySelector('h2').textContent = isEdit ? '세션 편집' : '새 세션';
+    m.querySelector('h2').textContent = isEdit ? 'Edit Session' : 'New Session';
 
     // Populate preset grid
     let presetHtml = '';
@@ -63,7 +63,7 @@ window.Modals = (() => {
     const tags     = document.getElementById('inp-stags').value.split(',').map(t => t.trim()).filter(Boolean);
 
     if (!name || !host || !username) {
-      App.notify('이름, 호스트, 사용자명은 필수입니다', 'error');
+      App.notify('Name, host, and username are required', 'error');
       return;
     }
 
@@ -73,10 +73,10 @@ window.Modals = (() => {
     try {
       if (editId) {
         await App.api('PUT', '/sessions/' + editId, body);
-        App.notify('세션 수정됨', 'success');
+        App.notify('Session updated', 'success');
       } else {
         await App.api('POST', '/sessions', body);
-        App.notify('세션 추가됨', 'success');
+        App.notify('Session added', 'success');
       }
       hideModal('modal-session');
       await App.loadAll();
@@ -96,10 +96,10 @@ window.Modals = (() => {
     const name    = document.getElementById('inp-snname').value.trim();
     const command = document.getElementById('inp-sncmd').value.trim();
     const desc    = document.getElementById('inp-sndesc').value.trim();
-    if (!name || !command) { App.notify('이름과 명령어는 필수입니다', 'error'); return; }
+    if (!name || !command) { App.notify('Name and command are required', 'error'); return; }
     try {
       await App.api('POST', '/snippets', { name, command, description: desc });
-      App.notify('스니펫 추가됨', 'success');
+      App.notify('Snippet added', 'success');
       hideModal('modal-snippet');
       await App.loadAll();
     } catch (e) { App.notify(e.message, 'error'); }

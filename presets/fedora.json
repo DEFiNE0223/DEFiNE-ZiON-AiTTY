@@ -2,40 +2,40 @@
   "id": "fedora", "name": "Fedora", "icon": "🎩", "color": "#294172",
   "pkg": "dnf",
   "categories": [
-    { "label": "📦 패키지", "commands": [
-      { "label": "업데이트",         "cmd": "sudo dnf update -y" },
-      { "label": "패키지 검색",      "cmd": "dnf search " },
-      { "label": "설치",             "cmd": "sudo dnf install -y " },
-      { "label": "삭제",             "cmd": "sudo dnf remove " },
-      { "label": "설치 목록",        "cmd": "dnf list installed" }
+    { "label": "📦 Packages", "commands": [
+      { "label": "Update",              "cmd": "sudo dnf update -y" },
+      { "label": "Search package",      "cmd": "dnf search " },
+      { "label": "Install",             "cmd": "sudo dnf install -y " },
+      { "label": "Remove",              "cmd": "sudo dnf remove " },
+      { "label": "Installed list",      "cmd": "dnf list installed" }
     ]},
-    { "label": "🌐 네트워크", "commands": [
-      { "label": "IP 확인",          "cmd": "ip addr show" },
-      { "label": "라우팅 테이블",    "cmd": "ip route" },
-      { "label": "포트 청취 확인",   "cmd": "ss -tulpn" },
-      { "label": "방화벽 상태",      "cmd": "sudo firewall-cmd --list-all" },
-      { "label": "방화벽 포트 열기", "cmd": "sudo firewall-cmd --permanent --add-port=/tcp && sudo firewall-cmd --reload" },
-      { "label": "DNS 확인",         "cmd": "nmcli dev show | grep DNS" },
-      { "label": "NetworkManager",   "cmd": "nmcli connection show" }
+    { "label": "🌐 Network", "commands": [
+      { "label": "Show IP",             "cmd": "ip addr show" },
+      { "label": "Routing table",       "cmd": "ip route" },
+      { "label": "Listening ports",     "cmd": "ss -tulpn" },
+      { "label": "Firewall status",     "cmd": "sudo firewall-cmd --list-all" },
+      { "label": "Open firewall port",  "cmd": "sudo firewall-cmd --permanent --add-port=/tcp && sudo firewall-cmd --reload" },
+      { "label": "DNS info",            "cmd": "nmcli dev show | grep DNS" },
+      { "label": "NetworkManager",      "cmd": "nmcli connection show" }
     ]},
-    { "label": "⚙️ 시스템", "commands": [
-      { "label": "OS 정보",          "cmd": "cat /etc/fedora-release && uname -r" },
-      { "label": "CPU / 메모리",     "cmd": "htop" },
-      { "label": "디스크 사용량",    "cmd": "df -h" },
-      { "label": "메모리",           "cmd": "free -h" },
-      { "label": "업타임",           "cmd": "uptime" },
-      { "label": "SELinux 상태",     "cmd": "sestatus" }
+    { "label": "⚙️ System", "commands": [
+      { "label": "OS info",             "cmd": "cat /etc/fedora-release && uname -r" },
+      { "label": "CPU / Memory",        "cmd": "htop" },
+      { "label": "Disk usage",          "cmd": "df -h" },
+      { "label": "Memory",              "cmd": "free -h" },
+      { "label": "Uptime",              "cmd": "uptime" },
+      { "label": "SELinux status",      "cmd": "sestatus" }
     ]},
-    { "label": "🔧 서비스", "commands": [
-      { "label": "서비스 목록",      "cmd": "systemctl list-units --type=service --state=running" },
-      { "label": "서비스 상태",      "cmd": "systemctl status " },
-      { "label": "서비스 재시작",    "cmd": "sudo systemctl restart " },
-      { "label": "실시간 로그",      "cmd": "sudo journalctl -fu " }
+    { "label": "🔧 Services", "commands": [
+      { "label": "Service list",        "cmd": "systemctl list-units --type=service --state=running" },
+      { "label": "Service status",      "cmd": "systemctl status " },
+      { "label": "Restart service",     "cmd": "sudo systemctl restart " },
+      { "label": "Live logs",           "cmd": "sudo journalctl -fu " }
     ]},
-    { "label": "🔐 보안", "commands": [
-      { "label": "로그인 기록",      "cmd": "last -20" },
-      { "label": "실패한 로그인",    "cmd": "sudo grep 'Failed password' /var/log/secure | tail -20" },
-      { "label": "SELinux 거부 로그","cmd": "sudo ausearch -m avc -ts recent" }
+    { "label": "🔐 Security", "commands": [
+      { "label": "Login history",       "cmd": "last -20" },
+      { "label": "Failed logins",       "cmd": "sudo grep 'Failed password' /var/log/secure | tail -20" },
+      { "label": "SELinux deny log",    "cmd": "sudo ausearch -m avc -ts recent" }
     ]}
   ]
 }

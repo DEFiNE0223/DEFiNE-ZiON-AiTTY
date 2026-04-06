@@ -32,13 +32,13 @@ window.Sidebar = (() => {
     });
 
     let html = `<div class="panel-toolbar">
-      <button class="btn-sm primary" onclick="Modals.showNewSession()">＋ 새 세션</button>
+      <button class="btn-sm primary" onclick="Modals.showNewSession()">＋ New Session</button>
       <button class="btn-sm" onclick="Sidebar.refreshSessions()">↻</button>
     </div>`;
 
     if (sessions.length === 0) {
       html += `<div style="padding:20px;text-align:center;color:var(--fg3);font-size:12px">
-        세션이 없습니다<br><br>＋ 새 세션으로 추가하세요
+        No sessions<br><br>Click ＋ New Session to add one
       </div>`;
     }
 
@@ -66,9 +66,9 @@ window.Sidebar = (() => {
             <div class="s-host">${esc(s.username)}@${esc(s.host)}:${s.port}</div>
           </div>
           <div class="s-actions">
-            <button class="s-action-btn" data-tip="SFTP 브라우저" onclick="Sidebar.openSftp(event,'${s.id}')">📁</button>
-            <button class="s-action-btn" data-tip="편집" onclick="Sidebar.editSession(event,'${s.id}')">✏️</button>
-            <button class="s-action-btn" data-tip="삭제" onclick="Sidebar.deleteSession(event,'${s.id}')">🗑️</button>
+            <button class="s-action-btn" data-tip="SFTP Browser" onclick="Sidebar.openSftp(event,'${s.id}')">📁</button>
+            <button class="s-action-btn" data-tip="Edit" onclick="Sidebar.editSession(event,'${s.id}')">✏️</button>
+            <button class="s-action-btn" data-tip="Delete" onclick="Sidebar.deleteSession(event,'${s.id}')">🗑️</button>
           </div>
         </div>`;
       }
@@ -95,12 +95,12 @@ window.Sidebar = (() => {
     sftpPath = path;
     document.getElementById('sftp-path-input').value = path;
     const fileList = document.getElementById('sftp-file-list');
-    fileList.innerHTML = '<div style="padding:10px;color:var(--fg3);font-size:11px">로딩 중...</div>';
+    fileList.innerHTML = '<div style="padding:10px;color:var(--fg3);font-size:11px">Loading...</div>';
     try {
       const files = await App.api('GET', `/sftp/${sftpSessionId}/list?path=${encodeURIComponent(path)}`);
       renderFileList(files, path);
     } catch (e) {
-      fileList.innerHTML = `<div style="padding:10px;color:var(--red);font-size:11px">오류: ${e.message}</div>`;
+      fileList.innerHTML = `<div style="padding:10px;color:var(--red);font-size:11px">Error: ${e.message}</div>`;
     }
   }
 
@@ -122,13 +122,13 @@ window.Sidebar = (() => {
         </div>
         <span class="fi-size">${size}</span>
         <div class="fi-actions">
-          ${!f.isDir ? `<button class="s-action-btn" title="다운로드" onclick="Sidebar.sftpDownload(event,'${esc(f.name)}')">⬇️</button>` : ''}
-          <button class="s-action-btn" title="삭제" onclick="Sidebar.sftpDelete(event,'${esc(f.name)}',${f.isDir})">🗑️</button>
+          ${!f.isDir ? `<button class="s-action-btn" title="Download" onclick="Sidebar.sftpDownload(event,'${esc(f.name)}')">⬇️</button>` : ''}
+          <button class="s-action-btn" title="Delete" onclick="Sidebar.sftpDelete(event,'${esc(f.name)}',${f.isDir})">🗑️</button>
         </div>
       </div>`;
     }
     html += `<div class="sftp-dropzone" id="sftp-drop" ondragover="Sidebar.dragOver(event)" ondragleave="Sidebar.dragLeave(event)" ondrop="Sidebar.dropFiles(event)">
-      📤 파일을 여기에 드래그하여 업로드
+      📤 Drag files here to upload
     </div>`;
     list.innerHTML = html;
   }
@@ -157,13 +157,13 @@ window.Sidebar = (() => {
 
   async function sftpDelete(e, name, isDir) {
     e.stopPropagation();
-    if (!confirm(`"${name}" 을 삭제하시겠습니까?`)) return;
+    if (!confirm(`Delete "${name}"?`)) return;
     const path = (sftpPath === '/' ? '' : sftpPath) + '/' + name;
     try {
       await App.api('DELETE', `/sftp/${sftpSessionId}/delete?path=${encodeURIComponent(path)}`);
-      App.notify('삭제 완료', 'success');
+      App.notify('Deleted', 'success');
       loadSftp(sftpPath);
-    } catch (e) { App.notify('삭제 실패: ' + e.message, 'error'); }
+    } catch (e) { App.notify('Delete failed: ' + e.message, 'error'); }
   }
 
   function dragOver(e) {
@@ -178,21 +178,21 @@ window.Sidebar = (() => {
     document.getElementById('sftp-drop').classList.remove('drag-over');
     const files = Array.from(e.dataTransfer.files);
     if (!files.length) return;
-    App.notify(`${files.length}개 파일 업로드 중...`, 'info');
+    App.notify(`Uploading ${files.length} file(s)...`, 'info');
     const fd = new FormData();
     files.forEach(f => fd.append('files', f));
     try {
       await fetch(`/api/sftp/${sftpSessionId}/upload?path=${encodeURIComponent(sftpPath)}`, { method: 'POST', body: fd });
-      App.notify('업로드 완료!', 'success');
+      App.notify('Upload complete!', 'success');
       loadSftp(sftpPath);
-    } catch (e) { App.notify('업로드 실패: ' + e.message, 'error'); }
+    } catch (e) { App.notify('Upload failed: ' + e.message, 'error'); }
   }
 
   // ── Snippets ──────────────────────────────────────────────────────
   function renderSnippets() {
     const container = document.getElementById('snippets-panel');
     let html = `<div class="panel-toolbar">
-      <button class="btn-sm primary" onclick="Modals.showNewSnippet()">＋ 추가</button>
+      <button class="btn-sm primary" onclick="Modals.showNewSnippet()">＋ Add</button>
     </div>`;
     for (const s of state.snippets) {
       html += `<div class="snippet-item" onclick="TermManager.pasteCommand('${esc(s.command)}')">
@@ -202,7 +202,7 @@ window.Sidebar = (() => {
       </div>`;
     }
     if (!state.snippets.length) {
-      html += '<div style="padding:20px;text-align:center;color:var(--fg3);font-size:12px">스니펫이 없습니다</div>';
+      html += '<div style="padding:20px;text-align:center;color:var(--fg3);font-size:12px">No snippets</div>';
     }
     container.innerHTML = html;
   }
@@ -269,17 +269,17 @@ window.Sidebar = (() => {
 
   async function deleteSession(e, sessionId) {
     e.stopPropagation();
-    if (!confirm('이 세션을 삭제하시겠습니까?')) return;
+    if (!confirm('Delete this session?')) return;
     try {
       await App.api('DELETE', `/sessions/${sessionId}`);
-      App.notify('세션 삭제됨', 'success');
+      App.notify('Session deleted', 'success');
       await App.loadAll();
     } catch (err) { App.notify(err.message, 'error'); }
   }
 
   async function refreshSessions() {
     await App.loadAll();
-    App.notify('새로고침 완료', 'success');
+    App.notify('Refreshed', 'success');
   }
 
   function toggleGroup(id) {

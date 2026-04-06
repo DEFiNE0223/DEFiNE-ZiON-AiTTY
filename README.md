@@ -160,18 +160,18 @@ npm install
 **macOS / Linux**
 ```bash
 chmod +x launch.sh stop.sh
-./launch.sh          # 서버 시작 + 브라우저 자동 오픈
-./stop.sh            # 서버 종료
+./launch.sh    # Start server + auto open browser
+./stop.sh      # Stop server
 ```
 
 **Windows**
 ```bat
-launch.bat           ← 더블클릭 (시스템 트레이 앱으로 실행)
+launch.bat     ← Double-click (runs as system tray app)
 ```
 
-**공통 (터미널)**
+**Universal**
 ```bash
-npm start            # 포그라운드 실행
+npm start      # Foreground run
 ```
 
 브라우저에서 `http://127.0.0.1:7654` 접속 후 마스터 패스워드를 설정하세요.
@@ -203,5 +203,17 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 > *"In ZiON, we don't just execute commands.*
 > *We **DEFiNE** them."*
+
+<br>
+
+---
+
+### 🤖 AI Disclosure
+
+This project was designed and built in collaboration with **Claude (Anthropic)** via [Claude Code](https://claude.ai/code).
+All architecture decisions, feature implementations, and code were co-created through an iterative AI-assisted development process.
+
+*This project itself is a living proof-of-concept of what DEFiNE-ZiON-AiTTY is built for —*
+*humans and AI agents, working together.*
 
 </div>

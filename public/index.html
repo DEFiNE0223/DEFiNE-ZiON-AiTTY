@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,11 +14,11 @@
   <div id="auth-box">
     <div class="logo">🔐</div>
     <h1>WebSSH</h1>
-    <p>마스터 패스워드로 잠금 해제</p>
-    <input type="password" id="auth-input" placeholder="마스터 패스워드" autofocus>
+    <p>Unlock with Master Password</p>
+    <input type="password" id="auth-input" placeholder="Master Password" autofocus>
     <div id="auth-error"></div>
     <br>
-    <button class="btn-primary" id="auth-btn" style="width:100%;margin-top:8px;padding:10px">잠금 해제</button>
+    <button class="btn-primary" id="auth-btn" style="width:100%;margin-top:8px;padding:10px">Unlock</button>
   </div>
 </div>
 
@@ -28,12 +28,12 @@
   <div id="sidebar">
     <div id="sidebar-header">
       <span class="app-title">⚡ WebSSH</span>
-      <button id="btn-lock" title="잠금">🔒</button>
+      <button id="btn-lock" title="Lock">🔒</button>
     </div>
     <div id="sidebar-tabs">
-      <div class="stab active" data-panel="sessions">💻 세션</div>
+      <div class="stab active" data-panel="sessions">💻 Sessions</div>
       <div class="stab" data-panel="sftp">📁 SFTP</div>
-      <div class="stab" data-panel="snippets">📜 스니펫</div>
+      <div class="stab" data-panel="snippets">📜 Snippets</div>
       <div class="stab" data-panel="ai">🤖 AI</div>
     </div>
     <div id="sidebar-content">
@@ -46,28 +46,28 @@
           <button class="btn-sm" onclick="Sidebar.loadSftp(document.getElementById('sftp-path-input').value)">→</button>
         </div>
         <div style="padding:4px 8px;display:flex;gap:4px">
-          <button class="btn-sm" onclick="Sidebar.loadSftp(document.getElementById('sftp-path-input').value)">↻ 새로고침</button>
-          <button class="btn-sm primary" onclick="document.getElementById('sftp-upload-input').click()">⬆ 업로드</button>
+          <button class="btn-sm" onclick="Sidebar.loadSftp(document.getElementById('sftp-path-input').value)">↻ Refresh</button>
+          <button class="btn-sm primary" onclick="document.getElementById('sftp-upload-input').click()">⬆ Upload</button>
           <input type="file" id="sftp-upload-input" multiple style="display:none" onchange="Sidebar.uploadFiles(this)">
         </div>
         <div id="sftp-file-list">
           <div style="padding:20px;text-align:center;color:var(--fg3);font-size:12px">
-            세션 목록에서 📁 아이콘을 클릭하여 SFTP 브라우저를 여세요
+            Click the 📁 icon in the session list to open the SFTP browser
           </div>
         </div>
       </div>
 
       <div id="snippets-panel"></div>
 
-      <!-- AI 탭: API Key 관리 -->
+      <!-- AI tab: API Key management -->
       <div id="ai-panel">
         <div class="panel-toolbar" style="flex-wrap:wrap;gap:4px">
-          <button class="btn-sm primary" onclick="AiPanel.open(Object.keys(App.state.panes)[0] || null)">💬 AI 채팅 열기</button>
-          <button class="btn-sm" onclick="AiPanel.clearHistory()">🗑 대화 초기화</button>
+          <button class="btn-sm primary" onclick="AiPanel.open(Object.keys(App.state.panes)[0] || null)">💬 Open AI Chat</button>
+          <button class="btn-sm" onclick="AiPanel.clearHistory()">🗑 Clear Conversation</button>
         </div>
-        <div class="ai-section-title">API Key 관리</div>
+        <div class="ai-section-title">API Key Management</div>
         <div id="ai-keys-list">
-          <div style="padding:16px;text-align:center;color:var(--fg3);font-size:12px">로딩 중...</div>
+          <div style="padding:16px;text-align:center;color:var(--fg3);font-size:12px">Loading...</div>
         </div>
       </div>
     </div>
@@ -86,14 +86,14 @@
       <div id="welcome" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--fg3)">
         <div style="font-size:64px">⚡</div>
         <h2 style="color:var(--fg2);font-size:18px">WebSSH</h2>
-        <p style="font-size:13px">왼쪽 세션 목록에서 서버를 클릭하거나</p>
-        <button class="btn-primary" onclick="Modals.showNewSession()" style="margin-top:4px">＋ 새 세션 추가</button>
+        <p style="font-size:13px">Click a server in the session list on the left or</p>
+        <button class="btn-primary" onclick="Modals.showNewSession()" style="margin-top:4px">＋ Add New Session</button>
       </div>
 
       <!-- OS Preset panel (slides in from right) -->
       <div id="preset-panel">
         <div id="preset-panel-header">
-          <h4 id="preset-panel-title">OS 명령</h4>
+          <h4 id="preset-panel-title">OS Commands</h4>
           <button class="pane-btn" onclick="PresetPanel.close()">✕</button>
         </div>
         <div id="preset-panel-body"></div>
@@ -101,32 +101,32 @@
 
       <!-- AI Chat panel (slides in from right, z-index 15) -->
       <div id="ai-chat-panel">
-        <!-- 헤더: 모델 선택 + 툴바 -->
+        <!-- Header: model selection + toolbar -->
         <div id="ai-chat-header">
           <h4>🤖</h4>
           <div id="ai-selectors">
             <select id="ai-provider-select" onchange="AiPanel.onProviderChange()"></select>
             <select id="ai-model-select"    onchange="AiPanel.onModelChange()"></select>
           </div>
-          <button class="pane-btn" id="ai-agent-btn" onclick="AiPanel.toggleAgent()" data-tip="에이전트 모드: AI가 명령을 자동 실행·분석">🤖</button>
-          <button class="pane-btn" onclick="AiPanel.sendContext()" data-tip="터미널 내용 전달">📋</button>
-          <button class="pane-btn" onclick="AiPanel.toggleSys()"   data-tip="시스템 프롬프트">⚙</button>
-          <button class="pane-btn" onclick="AiPanel.clearHistory()" data-tip="대화 초기화">🗑</button>
+          <button class="pane-btn" id="ai-agent-btn" onclick="AiPanel.toggleAgent()" data-tip="Agent mode: AI auto-executes and analyzes commands">🤖</button>
+          <button class="pane-btn" onclick="AiPanel.sendContext()" data-tip="Send terminal content">📋</button>
+          <button class="pane-btn" onclick="AiPanel.toggleSys()"   data-tip="System Prompt">⚙</button>
+          <button class="pane-btn" onclick="AiPanel.clearHistory()" data-tip="Clear conversation">🗑</button>
           <button class="pane-btn" onclick="AiPanel.close()" style="color:var(--red)">✕</button>
         </div>
-        <!-- 메시지 영역 -->
+        <!-- Messages area -->
         <div id="ai-chat-messages"></div>
-        <!-- 입력 영역 -->
+        <!-- Input area -->
         <div id="ai-chat-bottom">
           <div id="ai-sys-row">
             <textarea id="ai-sys-prompt" rows="2"
-              placeholder="시스템 프롬프트 (AI 역할/규칙 설정)..."
+              placeholder="System Prompt (set AI role/rules)..."
               oninput="AiPanel.onSysChange()"></textarea>
           </div>
           <div id="ai-input-row">
             <textarea id="ai-chat-input" rows="3"
-              placeholder="메시지 입력... (Ctrl+Enter 전송)"></textarea>
-            <button id="ai-send-btn" onclick="AiPanel.send()">전송</button>
+              placeholder="Enter message... (Ctrl+Enter to send)"></textarea>
+            <button id="ai-send-btn" onclick="AiPanel.send()">Send</button>
           </div>
         </div>
       </div>
@@ -134,19 +134,19 @@
 
     <!-- Multi-exec bar -->
     <div id="multi-exec-bar">
-      <span id="multi-exec-label" style="font-size:11px;color:var(--yellow)">0개 선택됨</span>
-      <input type="text" id="multi-exec-input" placeholder="모든 선택된 서버에 명령 실행 (Enter)">
-      <button id="btn-multi-exec" class="btn-sm primary">▶ 실행</button>
-      <button class="btn-sm" onclick="document.querySelectorAll('#pane-area input[type=checkbox]').forEach(c=>{c.checked=false;c.dispatchEvent(new Event('change'))})">취소</button>
+      <span id="multi-exec-label" style="font-size:11px;color:var(--yellow)">0 selected</span>
+      <input type="text" id="multi-exec-input" placeholder="Execute command on all selected servers (Enter)">
+      <button id="btn-multi-exec" class="btn-sm primary">▶ Run</button>
+      <button class="btn-sm" onclick="document.querySelectorAll('#pane-area input[type=checkbox]').forEach(c=>{c.checked=false;c.dispatchEvent(new Event('change'))})">Cancel</button>
     </div>
   </div>
 </div>
 
 <!-- ── Status bar ─────────────────────────────────────────────────── -->
 <div id="status-bar" class="locked">
-  <span class="sb-item" id="sb-lock-status">🔒 잠금됨</span>
+  <span class="sb-item" id="sb-lock-status">🔒 Locked</span>
   <span class="sb-sep">│</span>
-  <span class="sb-item" id="sb-sessions">💻 0 세션</span>
+  <span class="sb-item" id="sb-sessions">💻 0 Sessions</span>
   <span class="sb-sep">│</span>
   <span class="sb-item" id="sb-connected"></span>
   <div id="sb-right">
@@ -164,56 +164,56 @@
 <!-- ── Modal: New/Edit Session ───────────────────────────────────── -->
 <div id="modal-session" class="modal-backdrop hidden">
   <div class="modal" style="max-width:540px">
-    <h2>새 세션</h2>
+    <h2>New Session</h2>
     <div class="form-row">
       <div class="form-group">
-        <label>세션 이름 *</label>
-        <input type="text" id="inp-sname" placeholder="예: Production Web">
+        <label>Session Name *</label>
+        <input type="text" id="inp-sname" placeholder="e.g. Production Web">
       </div>
       <div class="form-group">
-        <label>그룹</label>
-        <input type="text" id="inp-sgroup" placeholder="예: Production">
+        <label>Group</label>
+        <input type="text" id="inp-sgroup" placeholder="e.g. Production">
       </div>
     </div>
     <div class="form-row-3">
       <div class="form-group">
-        <label>호스트 *</label>
+        <label>Host *</label>
         <input type="text" id="inp-shost" placeholder="192.168.1.1">
       </div>
       <div class="form-group">
-        <label>포트</label>
+        <label>Port</label>
         <input type="number" id="inp-sport" value="22" min="1" max="65535">
       </div>
       <div class="form-group">
-        <label>사용자명 *</label>
+        <label>Username *</label>
         <input type="text" id="inp-suser" placeholder="root">
       </div>
     </div>
     <div class="form-group">
-      <label>패스워드 (변경 시에만 입력)</label>
+      <label>Password (only required when changing)</label>
       <input type="password" id="inp-spass" placeholder="••••••••">
     </div>
 
     <div class="form-group">
-      <label>OS 타입</label>
+      <label>OS Type</label>
       <input type="hidden" id="sel-preset" value="ubuntu">
       <div class="preset-grid" id="preset-grid"></div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>태그 (콤마 구분)</label>
+        <label>Tags (comma-separated)</label>
         <input type="text" id="inp-stags" placeholder="web, prod, k8s">
       </div>
       <div class="form-group">
-        <label>메모</label>
-        <input type="text" id="inp-snotes" placeholder="서버 설명...">
+        <label>Notes</label>
+        <input type="text" id="inp-snotes" placeholder="Server description...">
       </div>
     </div>
 
     <div class="modal-footer">
-      <button class="btn-cancel" onclick="Modals.hideModal('modal-session')">취소</button>
-      <button class="btn-primary" id="btn-save-session">저장</button>
+      <button class="btn-cancel" onclick="Modals.hideModal('modal-session')">Cancel</button>
+      <button class="btn-primary" id="btn-save-session">Save</button>
     </div>
   </div>
 </div>
@@ -221,22 +221,22 @@
 <!-- ── Modal: New Snippet ─────────────────────────────────────────── -->
 <div id="modal-snippet" class="modal-backdrop hidden">
   <div class="modal" style="max-width:440px">
-    <h2>📜 스니펫 추가</h2>
+    <h2>📜 Add Snippet</h2>
     <div class="form-group">
-      <label>이름 *</label>
-      <input type="text" id="inp-snname" placeholder="예: 디스크 사용량 확인">
+      <label>Name *</label>
+      <input type="text" id="inp-snname" placeholder="e.g. Check disk usage">
     </div>
     <div class="form-group">
-      <label>명령어 *</label>
+      <label>Command *</label>
       <input type="text" id="inp-sncmd" placeholder="df -h" style="font-family:var(--font-mono)">
     </div>
     <div class="form-group">
-      <label>설명</label>
-      <input type="text" id="inp-sndesc" placeholder="선택사항">
+      <label>Description</label>
+      <input type="text" id="inp-sndesc" placeholder="Optional">
     </div>
     <div class="modal-footer">
-      <button class="btn-cancel" onclick="Modals.hideModal('modal-snippet')">취소</button>
-      <button class="btn-primary" id="btn-save-snippet">저장</button>
+      <button class="btn-cancel" onclick="Modals.hideModal('modal-snippet')">Cancel</button>
+      <button class="btn-primary" id="btn-save-snippet">Save</button>
     </div>
   </div>
 </div>
@@ -251,23 +251,23 @@
 <script src="/js/modals.js"></script>
 <script src="/js/ai-panel.js"></script>
 <script>
-  // SFTP 파일 업로드 via input
+  // SFTP file upload via input
   Sidebar.uploadFiles = async function(input) {
     const files = Array.from(input.files);
     if (!files.length || !Sidebar.sftpSessionId) return;
-    App.notify(`${files.length}개 파일 업로드 중...`);
+    App.notify(`Uploading ${files.length} file(s)...`);
     const fd = new FormData();
     files.forEach(f => fd.append('files', f));
     const path = document.getElementById('sftp-path-input').value || '/';
     try {
       await fetch(`/api/sftp/${Sidebar.sftpSessionId}/upload?path=${encodeURIComponent(path)}`, { method:'POST', body:fd });
-      App.notify('업로드 완료!', 'success');
+      App.notify('Upload complete!', 'success');
       Sidebar.loadSftp(path);
-    } catch(e) { App.notify('업로드 실패: ' + e.message, 'error'); }
+    } catch(e) { App.notify('Upload failed: ' + e.message, 'error'); }
     input.value = '';
   };
 
-  // Sidebar tab click handlers (AI 탭 포함)
+  // Sidebar tab click handlers (including AI tab)
   document.querySelectorAll('.stab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
@@ -276,21 +276,21 @@
       document.querySelectorAll('#sessions-panel,#sftp-panel,#snippets-panel,#ai-panel')
         .forEach(p => p.classList.remove('active'));
       document.getElementById(panel + '-panel').classList.add('active');
-      // AI 탭 진입 시 키 목록 로드
+      // Load key list when entering AI tab
       if (panel === 'ai') AiPanel.onTabEnter();
     });
   });
 
-  // ── Global tooltip — 커서 기준 위쪽 표시 ────────────────────────
+  // ── Global tooltip — display above cursor ────────────────────────
   const _tip = document.getElementById('ws-tooltip');
   let _tipTimer;
   let _curX = 0, _curY = 0;
 
-  // 커서 위치 항상 추적
+  // Always track cursor position
   document.addEventListener('mousemove', (e) => {
     _curX = e.clientX;
     _curY = e.clientY;
-    // 툴팁 떠 있으면 커서 따라 위치 갱신
+    // Update tooltip position as cursor moves if visible
     if (_tip.classList.contains('visible')) {
       _positionTip();
     }
@@ -302,13 +302,13 @@
     let left = _curX - tw / 2;
     let top  = _curY - th - 12;
     left = Math.max(6, Math.min(left, window.innerWidth - tw - 6));
-    // 툴팁이 10px 이상 화면 밖으로 나가는 경우에만 아래로 반전
+    // Only flip below if tooltip goes more than 10px off-screen
     if (top < -10) {
       top = _curY + 18;
       _tip.classList.remove('arrow-down');
       _tip.classList.add('arrow-up');
     } else {
-      top = Math.max(2, top);   // 화면 위쪽 경계 클램핑
+      top = Math.max(2, top);   // Clamp to top screen edge
       _tip.classList.remove('arrow-up');
       _tip.classList.add('arrow-down');
     }

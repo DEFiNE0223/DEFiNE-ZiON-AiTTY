@@ -6,18 +6,18 @@ Add-Type -AssemblyName System.Drawing
 
 $PORT      = 7654
 $URL       = "http://127.0.0.1:$PORT"
-$scriptDir = $PSScriptRoot   # bat에서 호출해도 항상 스크립트 위치 반환
+$scriptDir = $PSScriptRoot   # Always returns the script's own directory, even when called from a bat
 
-# data 디렉터리 생성 (없으면)
+# Create data directory if it doesn't exist
 $dataDir = Join-Path $scriptDir "data"
 if (-not (Test-Path $dataDir)) { New-Item -ItemType Directory -Path $dataDir | Out-Null }
 
 $logFile = Join-Path $dataDir "server.log"
 $pidFile = Join-Path $dataDir "server.pid"
 
-# ── 기존 프로세스 정리 ──────────────────────────────────────────────
+# ── Stop existing processes ─────────────────────────────────────────
 function Stop-ExistingServer {
-    # PID 파일로 종료 시도
+    # Try to stop using PID file
     if (Test-Path $pidFile) {
         $oldPid = Get-Content $pidFile -ErrorAction SilentlyContinue
         if ($oldPid) {
@@ -25,7 +25,7 @@ function Stop-ExistingServer {
         }
         Remove-Item $pidFile -ErrorAction SilentlyContinue
     }
-    # 포트 점유 프로세스도 종료
+    # Also stop any process occupying the port
     $conn = Get-NetTCPConnection -LocalPort $PORT -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($conn -and $conn.OwningProcess -gt 4) {
         Stop-Process -Id $conn.OwningProcess -Force -ErrorAction SilentlyContinue
@@ -33,7 +33,7 @@ function Stop-ExistingServer {
     }
 }
 
-# ── 서버 시작 ───────────────────────────────────────────────────────
+# ── Start server ────────────────────────────────────────────────────
 function Start-Server {
     Stop-ExistingServer
     $proc = Start-Process `
@@ -48,48 +48,48 @@ function Start-Server {
     return $proc
 }
 
-# 서버 시작
+# Start server
 $nodeProcess = Start-Server
 Start-Sleep -Milliseconds 1800
 
-# 브라우저 열기
+# Open browser
 Start-Process $URL
 
-# ── 트레이 아이콘 ───────────────────────────────────────────────────
+# ── Tray icon ───────────────────────────────────────────────────────
 $tray          = New-Object System.Windows.Forms.NotifyIcon
 $tray.Icon     = [System.Drawing.SystemIcons]::Application
 $tray.Text     = "ZiON-AiTTY  (port $PORT)"
 $tray.Visible  = $true
 
-# 컨텍스트 메뉴
+# Context menu
 $menu = New-Object System.Windows.Forms.ContextMenuStrip
 
 $itemOpen = New-Object System.Windows.Forms.ToolStripMenuItem
-$itemOpen.Text = "  WebSSH 열기"
+$itemOpen.Text = "  Open WebSSH"
 $itemOpen.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
 $itemOpen.Add_Click({ Start-Process $URL })
 
 $itemLog = New-Object System.Windows.Forms.ToolStripMenuItem
-$itemLog.Text = "  로그 보기"
+$itemLog.Text = "  View Log"
 $itemLog.Add_Click({
     if (Test-Path $logFile) { Start-Process notepad $logFile }
-    else { [System.Windows.Forms.MessageBox]::Show("로그 파일이 없습니다.") }
+    else { [System.Windows.Forms.MessageBox]::Show("Log file not found.") }
 })
 
 $itemSep1 = New-Object System.Windows.Forms.ToolStripSeparator
 
 $itemRestart = New-Object System.Windows.Forms.ToolStripMenuItem
-$itemRestart.Text = "  서버 재시작"
+$itemRestart.Text = "  Restart Server"
 $itemRestart.Add_Click({
     $script:nodeProcess = Start-Server
     Start-Sleep -Milliseconds 1200
-    $tray.ShowBalloonTip(2000, "ZiON-AiTTY", "서버가 재시작되었습니다.", [System.Windows.Forms.ToolTipIcon]::Info)
+    $tray.ShowBalloonTip(2000, "ZiON-AiTTY", "Server has been restarted.", [System.Windows.Forms.ToolTipIcon]::Info)
 })
 
 $itemSep2 = New-Object System.Windows.Forms.ToolStripSeparator
 
 $itemExit = New-Object System.Windows.Forms.ToolStripMenuItem
-$itemExit.Text = "  종료"
+$itemExit.Text = "  Exit"
 $itemExit.Add_Click({
     $tray.Visible = $false
     Stop-ExistingServer
@@ -100,6 +100,6 @@ $menu.Items.AddRange(@($itemOpen, $itemLog, $itemSep1, $itemRestart, $itemSep2, 
 $tray.ContextMenuStrip = $menu
 $tray.Add_DoubleClick({ Start-Process $URL })
 
-$tray.ShowBalloonTip(3000, "ZiON-AiTTY", "서버가 시작되었습니다.`n$URL", [System.Windows.Forms.ToolTipIcon]::Info)
+$tray.ShowBalloonTip(3000, "ZiON-AiTTY", "Server has started.`n$URL", [System.Windows.Forms.ToolTipIcon]::Info)
 
 [System.Windows.Forms.Application]::Run()

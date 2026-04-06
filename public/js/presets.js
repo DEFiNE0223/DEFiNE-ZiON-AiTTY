@@ -45,7 +45,7 @@ window.PresetPanel = (() => {
     if (!currentPaneId) return;
     const pane = App.state.panes[currentPaneId];
     if (!pane || !pane.connected) {
-      App.notify('연결된 세션이 없습니다', 'warning');
+      App.notify('No connected session', 'warning');
       return;
     }
     // Just paste the command (user can edit trailing args)
@@ -53,7 +53,7 @@ window.PresetPanel = (() => {
       // Use TermManager's approach
     }
     TermManager.pasteCommand(cmd);
-    App.notify(`명령어 입력됨: ${cmd}`, 'info', 2000);
+    App.notify(`Command entered: ${cmd}`, 'info', 2000);
   }
 
   function close() {
