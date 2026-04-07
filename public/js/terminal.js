@@ -20,7 +20,16 @@ window.TermManager = (() => {
     if (ws && ws.readyState === WebSocket.OPEN)
       ws.send(JSON.stringify({ type: 'input', paneId, data }));
   }
+
+  // Track last focused pane for snippet/command targeting
+  let _lastFocusedPaneId = null;
+  function setFocusedPane(paneId) { _lastFocusedPaneId = paneId; }
   function getActivePaneId() {
+    // Prefer last focused pane (if still visible), else first visible pane
+    if (_lastFocusedPaneId) {
+      const el = document.getElementById('pane_el_' + _lastFocusedPaneId);
+      if (el && el.style.display !== 'none') return _lastFocusedPaneId;
+    }
     return Object.keys(state.panes).find(id => {
       const el = document.getElementById('pane_el_' + id);
       return el && el.style.display !== 'none';
@@ -151,7 +160,12 @@ window.TermManager = (() => {
     fitAddon.fit();
     pane.fitAddon = fitAddon;
 
+    // Track focus: xterm focus event + pane element click
+    term.onFocus(() => setFocusedPane(paneId));
+    termEl.addEventListener('mousedown', () => setFocusedPane(paneId), { capture: true });
+
     term.onData(data => {
+      setFocusedPane(paneId);
       const p = state.panes[paneId];
       // Enter on disconnected pane → close it
       if (p && p.waitingClose && (data === '\r' || data === '\n')) {
@@ -468,6 +482,9 @@ window.TermManager = (() => {
     const activePaneId = getActivePaneId();
     if (activePaneId && ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ type: 'input', paneId: activePaneId, data: cmd }));
+      // Focus the terminal so the user can immediately interact
+      const pane = state.panes[activePaneId];
+      if (pane && pane.term) pane.term.focus();
     }
   }
 
@@ -482,5 +499,5 @@ window.TermManager = (() => {
     document.getElementById('btn-multi-exec').addEventListener('click', sendMultiExec);
   }
 
-  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId };
+  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane };
 })();
