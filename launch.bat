@@ -29,17 +29,14 @@ if not exist "data" mkdir data
 powershell -Command "$c=Get-NetTCPConnection -LocalPort 7654 -EA SilentlyContinue|Select -First 1;if($c -and $c.OwningProcess -gt 4){Stop-Process -Id $c.OwningProcess -Force -EA SilentlyContinue;Start-Sleep -Milliseconds 600}"
 
 echo [START] Launching tray app...
-echo         Check system tray (bottom-right)
+echo         This window will close automatically.
+echo         Tray icon appears in the system tray (bottom-right corner).
+echo         Right-click the tray icon to Open or Exit.
 echo.
+timeout /t 2 /nobreak >nul
 
-:: Launch tray
-powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File "%~dp0tray.ps1"
+:: Launch tray as a fully detached hidden process, then close this CMD window.
+:: Using Start-Process ensures the PS window is hidden from the start.
+powershell -Command "Start-Process -FilePath powershell -ArgumentList @('-WindowStyle','Hidden','-ExecutionPolicy','Bypass','-NonInteractive','-File','%~dp0tray.ps1') -WindowStyle Hidden"
 
-if errorlevel 1 (
-    echo.
-    echo [ERROR] Tray launch failed.
-    echo         Run this in admin PowerShell then retry:
-    echo         Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-    echo.
-    pause
-)
+exit

@@ -51,7 +51,7 @@ window.App = (() => {
   function showSetupOverlay() {
     const box = document.getElementById('auth-box');
     box.querySelector('.logo').textContent = '🔐';
-    box.querySelector('h1').textContent = 'WebSSH Setup';
+    box.querySelector('h1').textContent = 'AiTTY Setup';
     box.querySelector('p').textContent = 'Set your Master Password';
     document.getElementById('auth-input').placeholder = 'New Master Password';
     document.getElementById('auth-btn').textContent = 'Set Password';
@@ -73,7 +73,7 @@ window.App = (() => {
   function showUnlockOverlay() {
     const box = document.getElementById('auth-box');
     box.querySelector('.logo').textContent = '🔒';
-    box.querySelector('h1').textContent = 'WebSSH';
+    box.querySelector('h1').textContent = 'AiTTY';
     box.querySelector('p').textContent = 'Unlock with Master Password';
     document.getElementById('auth-input').placeholder = 'Master Password';
     document.getElementById('auth-input').value = '';

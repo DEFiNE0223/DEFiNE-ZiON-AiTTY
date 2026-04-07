@@ -8,9 +8,15 @@ $PORT      = 7654
 $URL       = "http://127.0.0.1:$PORT"
 $scriptDir = $PSScriptRoot   # Always returns the script's own directory, even when called from a bat
 
+# Set console title (visible in Task Manager Details as the window title)
+$host.UI.RawUI.WindowTitle = "AiTTY — Tray"
+
 # Create data directory if it doesn't exist
 $dataDir = Join-Path $scriptDir "data"
 if (-not (Test-Path $dataDir)) { New-Item -ItemType Directory -Path $dataDir | Out-Null }
+
+# Save this process's PID so it can be identified/killed externally
+$PID | Out-File (Join-Path $dataDir "tray.pid") -Encoding ascii
 
 $logFile = Join-Path $dataDir "server.log"
 $pidFile = Join-Path $dataDir "server.pid"
@@ -63,7 +69,7 @@ $tray.Visible  = $true
 $menu = New-Object System.Windows.Forms.ContextMenuStrip
 
 $itemOpen = New-Object System.Windows.Forms.ToolStripMenuItem
-$itemOpen.Text = "  Open WebSSH"
+$itemOpen.Text = "  Open AiTTY"
 $itemOpen.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
 $itemOpen.Add_Click({ Start-Process $URL })
 
@@ -91,6 +97,7 @@ $itemExit.Text = "  Exit"
 $itemExit.Add_Click({
     $tray.Visible = $false
     Stop-ExistingServer
+    Remove-Item (Join-Path $dataDir "tray.pid") -ErrorAction SilentlyContinue
     [System.Windows.Forms.Application]::Exit()
 })
 

@@ -1,8 +1,8 @@
-# ── 런타임 데이터 (절대 커밋 금지) ─────────────────────────────────
+# ── Runtime data (never commit) ──────────────────────────────────
 data/
-# data/ 안에는 암호화된 API 키, 세션 정보, 마스터 패스워드 파생 데이터가 있음
+# data/ contains encrypted API keys, session info, and master password derived data
 
-# ── 환경 변수 / 시크릿 ───────────────────────────────────────────────
+# ── Environment variables / secrets ──────────────────────────────
 .env
 .env.*
 .env.local
@@ -11,7 +11,7 @@ data/
 secrets.*
 config.local.*
 
-# ── SSH / SSL / 인증서 키 ────────────────────────────────────────────
+# ── SSH / SSL / certificate keys ─────────────────────────────────
 *.pem
 *.key
 *.p12
@@ -25,7 +25,7 @@ id_ecdsa
 *.pub
 known_hosts
 
-# ── 로그 파일 ────────────────────────────────────────────────────────
+# ── Log files ─────────────────────────────────────────────────────
 *.log
 logs/
 server.log
@@ -33,13 +33,13 @@ server-err.log
 npm-debug.log*
 yarn-debug.log*
 
-# ── Node.js ──────────────────────────────────────────────────────────
+# ── Node.js ──────────────────────────────────────────────────────
 node_modules/
 .npm
 .yarn
 .pnp.*
 
-# ── 백업 / 임시 파일 ─────────────────────────────────────────────────
+# ── Backup / temp files ───────────────────────────────────────────
 *.bak
 *.backup
 *.orig
@@ -49,7 +49,7 @@ node_modules/
 *~
 .#*
 
-# ── OS 생성 파일 ─────────────────────────────────────────────────────
+# ── OS generated files ────────────────────────────────────────────
 .DS_Store
 .DS_Store?
 Thumbs.db
@@ -57,14 +57,14 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
-# ── 에디터 설정 ──────────────────────────────────────────────────────
+# ── Editor settings ───────────────────────────────────────────────
 .vscode/settings.json
 .vscode/launch.json
 .idea/
 *.sublime-workspace
 .history/
 
-# ── 빌드 / 배포 ──────────────────────────────────────────────────────
+# ── Build / deploy ────────────────────────────────────────────────
 dist/
 build/
 .cache/
