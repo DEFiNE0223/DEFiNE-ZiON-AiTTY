@@ -91,9 +91,11 @@
       <span class="fib-sep">│</span>
       <span class="fib-lbl">IP</span>
       <span id="fib-ip">—</span>
+      <span id="fib-ip-badge" class="fib-ip-badge" style="display:none"></span>
       <span class="fib-sep">│</span>
       <span id="fib-cpu">CPU —</span>
       <span id="fib-mem">MEM —</span>
+      <span id="fib-disk" onclick="TermManager.showDiskInfo()" style="display:none;cursor:pointer" data-tip="클릭: 전체 디스크 정보">Disk —</span>
       <span class="fib-sep">│</span>
       <span id="fib-up">—</span>
       <button id="fib-refresh" onclick="TermManager.refreshFocusStats()" data-tip="Stats 새로고침">↺</button>
@@ -101,14 +103,6 @@
 
     <!-- Pane area -->
     <div id="pane-area" style="flex:1;position:relative;overflow:hidden;display:flex;min-height:0">
-      <!-- Welcome screen -->
-      <div id="welcome" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--fg3)">
-        <div style="font-size:64px">⚡</div>
-        <h2 style="color:var(--fg2);font-size:18px">AiTTY</h2>
-        <p style="font-size:13px">Click a server in the session list on the left or</p>
-        <button class="btn-primary" onclick="Modals.showNewSession()" style="margin-top:4px">＋ Add New Session</button>
-      </div>
-
       <!-- OS Preset panel (slides in from right) -->
       <div id="preset-panel">
         <div id="preset-panel-header">
@@ -151,6 +145,17 @@
           </div>
         </div>
       </div>
+
+      <!-- Main pane stack: all terminals + split view live here -->
+      <div id="pane-stack-main">
+        <!-- Welcome screen -->
+        <div id="welcome" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--fg3)">
+          <div style="font-size:64px">⚡</div>
+          <h2 style="color:var(--fg2);font-size:18px">AiTTY</h2>
+          <p style="font-size:13px">Click a server in the session list on the left or</p>
+          <button class="btn-primary" onclick="Modals.showNewSession()" style="margin-top:4px">＋ Add New Session</button>
+        </div>
+      </div>
     </div>
 
     <!-- Multi-exec bar -->
@@ -182,6 +187,17 @@
 
 <!-- ── Global Tooltip ────────────────────────────────────────────── -->
 <div id="ws-tooltip"></div>
+
+<!-- ── Modal: Disk Info ───────────────────────────────────────────── -->
+<div id="modal-disk" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:620px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h2 style="margin:0">💾 Disk Usage</h2>
+      <button class="pane-btn" onclick="document.getElementById('modal-disk').classList.add('hidden')" style="font-size:16px">✕</button>
+    </div>
+    <pre id="disk-modal-content" style="font-family:var(--font-mono);font-size:12px;color:var(--fg2);background:var(--bg0);padding:12px;border-radius:6px;overflow:auto;max-height:340px;white-space:pre;line-height:1.6">Loading…</pre>
+  </div>
+</div>
 
 <!-- ── Modal: New/Edit Session ───────────────────────────────────── -->
 <div id="modal-session" class="modal-backdrop hidden">

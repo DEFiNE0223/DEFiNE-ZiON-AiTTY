@@ -47,17 +47,34 @@ window.TermManager = (() => {
       ws.send(JSON.stringify({ type: 'server_stats', paneId }));
   }
 
+  // ── Split view state ──────────────────────────────────────────────
+  let _splitView = null; // null | { dir:'h'|'v', primaryId, secondaryId }
+
+  function _getPaneContainer() {
+    // In split view, primary container; else pane-stack-main
+    return document.getElementById(_splitView ? 'pane-stack-primary' : 'pane-stack-main');
+  }
+
+  // ── Server stats / Focus bar ──────────────────────────────────────
   function _handleServerStats(msg) {
     if (msg.paneId !== _lastFocusedPaneId || msg.error) return;
     _updateFocusBar({
       hostname: msg.hostname,
-      ip:       msg.ip,
+      ips:      msg.ips,
       cpu:      msg.cpu,
       memUsed:  msg.memUsed,
       memTotal: msg.memTotal,
       memPct:   msg.memPct,
       uptime:   msg.uptime,
+      diskPct:  msg.diskPct,
     });
+  }
+
+  function _handleServerDisk(msg) {
+    if (msg.error) { App.notify('Disk info unavailable', 'warn'); return; }
+    const el = document.getElementById('disk-modal-content');
+    if (el) el.textContent = msg.info || '(no data)';
+    document.getElementById('modal-disk')?.classList.remove('hidden');
   }
 
   function _updateFocusBar(data) {
@@ -67,20 +84,42 @@ window.TermManager = (() => {
     if (data.name     != null) document.getElementById('fib-name').textContent = data.name;
     if (data.hostname != null) {
       const el = document.getElementById('fib-hostname');
-      el.textContent = data.hostname; el.style.display = data.hostname ? '' : 'none';
+      el.textContent = data.hostname; el.style.display = data.hostname && data.hostname !== '—' ? '' : 'none';
     }
-    if (data.ip != null) document.getElementById('fib-ip').textContent = data.ip;
+    // IPs: primary + badge for extras
+    if (data.ips != null) {
+      const primary = data.ips[0] || '—';
+      const extras  = data.ips.length - 1;
+      document.getElementById('fib-ip').textContent = primary;
+      const badge = document.getElementById('fib-ip-badge');
+      if (badge) {
+        if (extras > 0) { badge.textContent = `+${extras}`; badge.title = data.ips.slice(1).join('\n'); badge.style.display = ''; }
+        else badge.style.display = 'none';
+      }
+    } else if (data.ip != null) {
+      document.getElementById('fib-ip').textContent = data.ip;
+      const badge = document.getElementById('fib-ip-badge');
+      if (badge) badge.style.display = 'none';
+    }
     if (data.cpu != null) {
       const el = document.getElementById('fib-cpu');
-      el.textContent  = `CPU ${data.cpu}%`;
-      el.style.color  = data.cpu < 50 ? 'var(--green)' : data.cpu < 80 ? 'var(--yellow)' : 'var(--red)';
+      el.textContent = `CPU ${data.cpu}%`;
+      el.style.color = data.cpu < 50 ? 'var(--green)' : data.cpu < 80 ? 'var(--yellow)' : 'var(--red)';
     }
     if (data.memPct != null) {
       const el = document.getElementById('fib-mem');
-      el.textContent  = `MEM ${data.memPct}% (${data.memUsed}/${data.memTotal}MB)`;
-      el.style.color  = data.memPct < 60 ? 'var(--green)' : data.memPct < 80 ? 'var(--yellow)' : 'var(--red)';
+      el.textContent = `MEM ${data.memPct}% (${data.memUsed}/${data.memTotal}MB)`;
+      el.style.color = data.memPct < 60 ? 'var(--green)' : data.memPct < 80 ? 'var(--yellow)' : 'var(--red)';
     }
-    if (data.uptime != null) document.getElementById('fib-up').textContent = '⏱ ' + data.uptime;
+    if (data.uptime  != null) document.getElementById('fib-up').textContent = '⏱ ' + data.uptime;
+    if (data.diskPct != null) {
+      const el = document.getElementById('fib-disk');
+      if (el) {
+        el.textContent = `💾 ${data.diskPct}%`;
+        el.style.color = data.diskPct < 70 ? 'var(--fg2)' : data.diskPct < 85 ? 'var(--yellow)' : 'var(--red)';
+        el.style.display = '';
+      }
+    }
   }
 
   function _hideFocusBar() {
@@ -90,6 +129,151 @@ window.TermManager = (() => {
   }
 
   function refreshFocusStats() { _requestStats(_lastFocusedPaneId); }
+
+  function showDiskInfo() {
+    const paneId = _lastFocusedPaneId;
+    if (!paneId || !state.panes[paneId]?.connected) { App.notify('No active connected session', 'warn'); return; }
+    document.getElementById('disk-modal-content').textContent = 'Loading…';
+    document.getElementById('modal-disk')?.classList.remove('hidden');
+    if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'server_disk', paneId }));
+  }
+
+  // ── Tab drag-to-split ─────────────────────────────────────────────
+  let _dragSourceTab = null;
+
+  function tabDragStart(e, tabId) {
+    _dragSourceTab = tabId;
+    e.dataTransfer.setData('tabid', tabId);
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(_showTabDropZones, 0);
+  }
+
+  function tabDragEnd() {
+    _dragSourceTab = null;
+    _hideTabDropZones();
+  }
+
+  function _showTabDropZones() {
+    const area = document.getElementById('pane-stack-main');
+    if (!area) return;
+    [['left','◀ Split','h'],['right','▶ Split','h'],['top','▲ Split','v'],['bottom','▼ Split','v']].forEach(([side, label, dir]) => {
+      const dz = document.createElement('div');
+      dz.className = `tab-drop-zone tab-dz-${side}`;
+      dz.textContent = label;
+      dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('active'); });
+      dz.addEventListener('dragleave', () => dz.classList.remove('active'));
+      dz.addEventListener('drop', e => {
+        e.preventDefault();
+        const tabId = e.dataTransfer.getData('tabid') || _dragSourceTab;
+        _hideTabDropZones();
+        if (tabId) _doTabSplitDrop(tabId, side, dir);
+      });
+      area.appendChild(dz);
+    });
+  }
+
+  function _hideTabDropZones() {
+    document.querySelectorAll('.tab-drop-zone').forEach(el => el.remove());
+  }
+
+  function _doTabSplitDrop(tabId, side, dir) {
+    if (!tabId || tabId === state.activeTabId) return;
+    const draggedIsPrimary = side === 'left' || side === 'top';
+    const primaryId   = draggedIsPrimary ? tabId : state.activeTabId;
+    const secondaryId = draggedIsPrimary ? state.activeTabId : tabId;
+    _enterSplitView(primaryId, secondaryId, dir);
+  }
+
+  function _enterSplitView(primaryId, secondaryId, dir) {
+    if (_splitView) exitSplitView();
+    const stackMain = document.getElementById('pane-stack-main');
+    if (!stackMain) return;
+
+    // Wrap all current direct children (except welcome) in primary container
+    const primaryCont = document.createElement('div');
+    primaryCont.id = 'pane-stack-primary';
+    primaryCont.className = 'pane-stack';
+    const welcome = document.getElementById('welcome');
+    [...stackMain.children].filter(c => c !== welcome).forEach(c => primaryCont.appendChild(c));
+    stackMain.appendChild(primaryCont);
+
+    // Show only primaryId's panes in primary, hide rest
+    const primaryTab = state.tabs.find(t => t.id === primaryId);
+    Object.keys(state.panes).forEach(pid => {
+      const el = document.getElementById('pane_el_' + pid);
+      if (!el) return;
+      el.style.display = primaryTab?.panes.includes(pid) ? '' : 'none';
+    });
+
+    // Splitter with close button
+    const splitter = document.createElement('div');
+    splitter.className = 'tab-stack-splitter' + (dir === 'v' ? ' vertical' : '');
+    splitter.innerHTML = '<span class="tss-close" title="Close split" onclick="TermManager.exitSplitView()">✕</span>';
+    makeDraggable(splitter, dir);
+    stackMain.appendChild(splitter);
+
+    // Secondary container — move secondary tab's panes here
+    const secondaryCont = document.createElement('div');
+    secondaryCont.id = 'pane-stack-secondary';
+    secondaryCont.className = 'pane-stack';
+    stackMain.appendChild(secondaryCont);
+
+    const secondaryTab = state.tabs.find(t => t.id === secondaryId);
+    if (secondaryTab) {
+      secondaryTab.panes.forEach(pid => {
+        const el = document.getElementById('pane_el_' + pid);
+        if (el) { el.style.display = ''; secondaryCont.appendChild(el); }
+      });
+    }
+
+    stackMain.style.flexDirection = dir === 'h' ? 'row' : 'column';
+    _splitView = { dir, primaryId, secondaryId };
+    state.activeTabId = primaryId;
+
+    setTimeout(() => Object.values(state.panes).forEach(p => p?.fitAddon?.fit()), 100);
+    renderTabs();
+  }
+
+  function _splitViewSwitchPrimary(tabId) {
+    if (!_splitView) return;
+    const stackMain   = document.getElementById('pane-stack-main');
+    const primaryCont = document.getElementById('pane-stack-primary');
+    const oldTab = state.tabs.find(t => t.id === _splitView.primaryId);
+    // Move old primary panes back to stackMain (hidden)
+    if (oldTab && primaryCont) {
+      oldTab.panes.forEach(pid => {
+        const el = document.getElementById('pane_el_' + pid);
+        if (el && primaryCont.contains(el)) { el.style.display = 'none'; stackMain.appendChild(el); }
+      });
+    }
+    // Move new tab's panes into primary container
+    _splitView.primaryId = tabId;
+    state.activeTabId    = tabId;
+    const newTab = state.tabs.find(t => t.id === tabId);
+    if (newTab && primaryCont) {
+      newTab.panes.forEach(pid => {
+        const el = document.getElementById('pane_el_' + pid);
+        if (el) { el.style.display = ''; primaryCont.appendChild(el); }
+      });
+    }
+    setTimeout(() => newTab?.panes.forEach(pid => state.panes[pid]?.fitAddon?.fit()), 50);
+    renderTabs();
+  }
+
+  function exitSplitView() {
+    if (!_splitView) return;
+    const stackMain    = document.getElementById('pane-stack-main');
+    const primaryCont  = document.getElementById('pane-stack-primary');
+    const secondaryCont= document.getElementById('pane-stack-secondary');
+    const splitter     = stackMain?.querySelector('.tab-stack-splitter');
+    // Move panes back to stackMain
+    if (primaryCont)   { [...primaryCont.children].forEach(c => stackMain.insertBefore(c, primaryCont)); primaryCont.remove(); }
+    if (secondaryCont) { [...secondaryCont.children].forEach(c => stackMain.appendChild(c)); secondaryCont.remove(); }
+    if (splitter)      splitter.remove();
+    if (stackMain)     stackMain.style.flexDirection = '';
+    _splitView = null;
+    switchTab(state.activeTabId);
+  }
   function getActivePaneId() {
     // Prefer last focused pane (if still visible), else first visible pane
     if (_lastFocusedPaneId) {
@@ -109,6 +293,7 @@ window.TermManager = (() => {
     ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
       if (msg.type === 'server_stats') { _handleServerStats(msg); return; }
+      if (msg.type === 'server_disk')  { _handleServerDisk(msg);  return; }
       const pane = state.panes[msg.paneId];
       if (!pane) return;
       if (msg.type === 'output') {
@@ -293,23 +478,19 @@ window.TermManager = (() => {
     // Create pane state
     state.panes[paneId] = { sessionId, term: createTerm(), connected: false, logTimer: null };
 
-    // Check if there's an active tab; if not, create one
-    let tab = state.tabs.find(t => t.id === state.activeTabId);
-    if (!tab) {
-      tab = createTab(session, paneId);
-    } else {
-      // Add to existing tab's first pane container
-      tab.panes.push(paneId);
-    }
+    // Each session always gets its own tab (full-size)
+    createTab(session, paneId);
 
     // Hide welcome screen once any pane opens
     const welcome = document.getElementById('welcome');
     if (welcome) welcome.style.display = 'none';
 
-    // Create pane element
+    // Create pane element — always append to pane-stack-main (hide until tab switch)
     const paneEl = createPaneEl(paneId, title);
-    const container = document.getElementById('pane-area');
+    const container = document.getElementById('pane-stack-main');
     container.appendChild(paneEl);
+    // Hide immediately if another tab is active (switchTab will show it)
+    paneEl.style.display = 'none';
 
     setTimeout(() => {
       mountTerm(paneId);
@@ -329,9 +510,9 @@ window.TermManager = (() => {
       }, 100);
     }, 50);
 
-    // Update preset panel
+    // Update preset panel & switch to the new tab (show this pane full size)
     PresetPanel.setPreset(paneId, preset);
-    renderTabs();
+    switchTab(state.activeTabId);
   }
 
   // ── Tab management ────────────────────────────────────────────────
@@ -349,19 +530,34 @@ window.TermManager = (() => {
     let html  = '';
     for (const tab of state.tabs) {
       const active = tab.id === state.activeTabId ? 'active' : '';
-      html += `<div class="tab ${active}" data-tabid="${tab.id}" onclick="TermManager.switchTab('${tab.id}')">
+      // Badge shows split position if in split view
+      let badge = '';
+      if (_splitView) {
+        if (tab.id === _splitView.primaryId)   badge = `<span class="tab-stack-badge">${_splitView.dir === 'h' ? '◀' : '▲'}</span>`;
+        if (tab.id === _splitView.secondaryId) badge = `<span class="tab-stack-badge">${_splitView.dir === 'h' ? '▶' : '▼'}</span>`;
+      }
+      html += `<div class="tab ${active}" data-tabid="${tab.id}"
+        draggable="true"
+        ondragstart="TermManager.tabDragStart(event,'${tab.id}')"
+        ondragend="TermManager.tabDragEnd(event)"
+        onclick="TermManager.switchTab('${tab.id}')">
         <span class="tab-icon">${tab.icon}</span>
-        <span class="tab-name">${esc(tab.label)}</span>
+        <span class="tab-name">${esc(tab.label)}</span>${badge}
         <span class="tab-close" onclick="TermManager.closeTab(event,'${tab.id}')">×</span>
       </div>`;
     }
-    html += `<button id="btn-new-tab" onclick="Modals.showNewSession()" data-tip="현재 탭에 새 세션 추가">＋</button>`;
+    html += `<button id="btn-new-tab" onclick="Modals.showNewSession()" data-tip="새 세션 연결">＋</button>`;
     bar.innerHTML = html;
   }
 
   function switchTab(tabId) {
+    if (_splitView) {
+      // In split view: clicking a tab changes the PRIMARY side
+      if (tabId === _splitView.secondaryId) return;
+      _splitViewSwitchPrimary(tabId);
+      return;
+    }
     state.activeTabId = tabId;
-    // Show/hide panes
     const allPaneIds = Object.keys(state.panes);
     const tab = state.tabs.find(t => t.id === tabId);
     for (const paneId of allPaneIds) {
@@ -369,7 +565,6 @@ window.TermManager = (() => {
       if (el) el.style.display = tab && tab.panes.includes(paneId) ? '' : 'none';
     }
     renderTabs();
-    // Refit all visible panes
     if (tab) for (const pid of tab.panes) {
       const p = state.panes[pid];
       if (p && p.fitAddon) setTimeout(() => p.fitAddon.fit(), 50);
@@ -381,17 +576,17 @@ window.TermManager = (() => {
     const tab = state.tabs.find(t => t.id === tabId);
     if (!tab) return;
     if (!confirm(`Close tab "${tab.label}"?`)) return;
+    // Exit split view if closing a split tab
+    if (_splitView && (tabId === _splitView.primaryId || tabId === _splitView.secondaryId)) {
+      exitSplitView();
+    }
     for (const paneId of tab.panes) closePane(paneId, true);
     state.tabs = state.tabs.filter(t => t.id !== tabId);
     if (state.activeTabId === tabId) {
       state.activeTabId = state.tabs[0]?.id || null;
     }
-    // Switch to the next active tab so its panes become visible
-    if (state.activeTabId) {
-      switchTab(state.activeTabId);
-    } else {
-      renderTabs();
-    }
+    if (state.activeTabId) switchTab(state.activeTabId);
+    else renderTabs();
   }
 
   // ── Split screen ──────────────────────────────────────────────────
@@ -443,9 +638,10 @@ window.TermManager = (() => {
 
   function makeDraggable(splitter, direction) {
     splitter.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('tss-close')) return; // don't drag on close btn
       e.preventDefault();
       splitter.classList.add('dragging');
-      const isH = direction === 'horizontal';
+      const isH = direction === 'horizontal' || direction === 'h';
       const parent = splitter.parentElement;
       const prev = splitter.previousElementSibling;
       const next = splitter.nextElementSibling;
@@ -593,9 +789,9 @@ window.TermManager = (() => {
       const parent = el.parentElement;
       el.remove();
 
-      // If parent is a split wrapper (not pane-area itself), clean up
-      const paneArea = document.getElementById('pane-area');
-      if (parent && parent !== paneArea) {
+      // If parent is an inner split wrapper (not a main stack container), clean up
+      const _stackIds = new Set(['pane-stack-main','pane-stack-primary','pane-stack-secondary']);
+      if (parent && !_stackIds.has(parent.id)) {
         // Remove splitter dividers
         parent.querySelectorAll('.splitter').forEach(s => s.remove());
 
@@ -664,5 +860,5 @@ window.TermManager = (() => {
     document.getElementById('btn-multi-exec').addEventListener('click', sendMultiExec);
   }
 
-  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane, paneDragStart, paneDragOver, paneDragLeave, paneDrop, selectAllPanes, deselectAllPanes, toggleAllPanes, refreshFocusStats };
+  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane, paneDragStart, paneDragOver, paneDragLeave, paneDrop, selectAllPanes, deselectAllPanes, toggleAllPanes, refreshFocusStats, exitSplitView, tabDragStart, tabDragEnd, showDiskInfo };
 })();

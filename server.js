@@ -84,6 +84,11 @@ wss.on('connection', (ws) => {
         .then(stats => ws.send(JSON.stringify({ type: 'server_stats', paneId, ...stats })))
         .catch(() => ws.send(JSON.stringify({ type: 'server_stats', paneId, error: true })));
     }
+    else if (type === 'server_disk') {
+      sshMgr.getDiskInfo(paneId)
+        .then(info => ws.send(JSON.stringify({ type: 'server_disk', paneId, info })))
+        .catch(() => ws.send(JSON.stringify({ type: 'server_disk', paneId, error: true })));
+    }
   });
 
   ws.on('close', () => {
