@@ -148,42 +148,83 @@ Phase 4: Expansion 🔭 PLANNED
 
 ---
 
+## 📋 Requirements
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| [Node.js](https://nodejs.org) | 18 or higher | Runtime — **required** |
+| Git | Any | For cloning the repo |
+| SSH server | Any | The remote server you want to connect to |
+| AI API Key | — | Optional — only needed for AI Agent features |
+
+> **No other installation needed.** All dependencies are installed automatically on first launch.
+
+---
+
 ## 🚀 Quick Start
 
+### Step 1 — Download
+
 ```bash
-# Clone the bastion
 git clone https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY.git
 cd DEFiNE-ZiON-AiTTY
-npm install
 ```
+
+> No git? Click **Code → Download ZIP** on GitHub, then extract.
+
+---
+
+### Step 2 — Launch
+
+**Windows** — double-click `launch.bat`
+> First run will automatically install dependencies. Check the system tray (bottom-right) for the icon.
 
 **macOS / Linux**
 ```bash
 chmod +x launch.sh stop.sh
-./launch.sh    # Start server + auto open browser
-./stop.sh      # Stop server
+./launch.sh
 ```
 
-**Windows**
-```bat
-launch.bat     ← Double-click (runs as system tray app)
-```
-
-**Universal**
+**Any OS (terminal)**
 ```bash
-npm start      # Foreground run
+npm install   # first time only
+npm start
 ```
 
-브라우저에서 `http://127.0.0.1:7654` 접속 후 마스터 패스워드를 설정하세요.
+Then open **http://127.0.0.1:7654** in your browser.
+
+---
+
+### Step 3 — First Setup
+
+1. **Set a Master Password** — this encrypts all your data locally. Don't forget it.
+2. **Add an SSH Session** — click `+ Session` in the sidebar → enter host, port, username, password or key.
+3. **Connect** — click your session to open a terminal.
+
+---
+
+### Step 4 — Enable AI Agent (Optional)
+
+1. Click the **AI** tab in the left sidebar.
+2. Click **Register** next to your preferred provider (Claude, GPT, Gemini, or Groq).
+3. Paste your API key — it's encrypted immediately and never leaves your machine.
+4. Open any terminal pane → click the **🤖** button in the pane header to open the AI chat.
+5. Ask anything — or enable **Agent Mode** to let the AI run commands and analyze results automatically.
+
+> **Where to get API keys:**
+> - Claude → [console.anthropic.com](https://console.anthropic.com)
+> - GPT → [platform.openai.com](https://platform.openai.com)
+> - Gemini → [aistudio.google.com](https://aistudio.google.com)
+> - Groq → [console.groq.com](https://console.groq.com)
 
 ---
 
 ## 🤝 Contribution & Community
 
-우리는 단순한 코드가 아니라, **미래의 운영 방식을 함께 정의할 동료**를 찾습니다.
+We're looking for collaborators to help **define the future of AI-assisted infrastructure management.**
 
-- **Pull Requests** — 언제나 환영합니다. 작은 버그 수정이 ZiON을 더 단단하게 만듭니다.
-- **Issues** — 제안하고 싶은 기능이 있다면 주저 말고 글을 남겨주세요.
+- **Pull Requests** — always welcome. Every fix makes ZiON stronger.
+- **Issues** — feature ideas, bugs, feedback — open an issue anytime.
 
 ---
 
