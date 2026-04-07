@@ -160,8 +160,7 @@ window.TermManager = (() => {
     fitAddon.fit();
     pane.fitAddon = fitAddon;
 
-    // Track focus: xterm focus event + pane element click
-    term.onFocus(() => setFocusedPane(paneId));
+    // Track which pane was last interacted with (mousedown on terminal area)
     termEl.addEventListener('mousedown', () => setFocusedPane(paneId), { capture: true });
 
     term.onData(data => {
@@ -303,7 +302,12 @@ window.TermManager = (() => {
     if (state.activeTabId === tabId) {
       state.activeTabId = state.tabs[0]?.id || null;
     }
-    renderTabs();
+    // Switch to the next active tab so its panes become visible
+    if (state.activeTabId) {
+      switchTab(state.activeTabId);
+    } else {
+      renderTabs();
+    }
   }
 
   // ── Split screen ──────────────────────────────────────────────────
