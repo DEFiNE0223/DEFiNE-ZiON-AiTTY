@@ -15,6 +15,7 @@
 <br>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=nodedotjs)](https://nodejs.org)
 [![xterm.js](https://img.shields.io/badge/xterm.js-5.3-black?style=for-the-badge)](https://xtermjs.org)
 [![Claude](https://img.shields.io/badge/Claude-Sonnet%20%7C%20Opus%20%7C%20Haiku-orange?style=for-the-badge)](https://anthropic.com)
@@ -38,112 +39,164 @@ Claude Code와 같은 최신 도구들은 혁신적이지만, 텍스트 뒤에�
 
 ---
 
-## 🔥 Key Pillars
+## ✨ Features (v1.0.0)
 
-### 🧠 1. Model-Agnostic Intelligence
+### 🖥️ Terminal & Session Management
 
-특정 AI 서비스에 종속되지 마세요. ZiON-AiTTY는 **멀티 모델 엔진**을 탑재하여 상황에 따라 가장 적합한 에이전트를 소환합니다.
+| Feature | Description |
+|---------|-------------|
+| **Multi-tab Interface** | Each session opens in its own dedicated full-size tab |
+| **Split-screen Panes** | Split any tab horizontally or vertically via pane header buttons |
+| **Tab Drag-to-Split** | Drag a tab to the left / right / top / bottom edge of the pane area → instant split view with resize handle |
+| **Pane Drag-to-Swap** | Drag pane headers to reorder within a split layout |
+| **Split View Splitter** | Drag the divider to resize split panes; ✕ button to exit split mode |
+
+### 📊 Focus Info Bar
+
+Real-time live stats for the currently **focused** server pane — always visible at the top.
+
+| Stat | Detail |
+|------|--------|
+| **Hostname** | Remote server hostname |
+| **IP Address(es)** | Primary IP shown; `+N` badge for extras (hover for full list) |
+| **CPU %** | Live usage via `/proc/stat` — color coded green / yellow / red |
+| **MEM %** | Used / Total MB via `free -m` — color coded |
+| **Uptime** | Human-readable via `uptime -p` |
+| **Disk %** | Root partition usage — click to open full `df -h` popup (container/virtual filesystems filtered) |
+
+> Stats auto-refresh every **30 seconds** per focused pane.
+
+### 🗂️ Session Sidebar
+
+- Saved sessions with **quick connect**
+- Preset OS command panels (Linux, Ubuntu, CentOS, Docker, etc.)
+- **☑ All / ☐ All** toggle — select or deselect all panes in one click
+- **Multi-Exec Bar** — type one command, broadcast to all selected servers simultaneously
+
+### 🤖 AI Assistant
+
+- Built-in AI chat panel per pane (Claude / GPT-4o / Gemini / Groq)
+- **Agent Mode** — AI suggests command → executes in terminal → captures output → feeds back to AI (loop)
+- Terminal output context bridge — AI sees what you see
+- All API keys encrypted with AES-256-GCM — never leave your machine
+
+### 📁 SFTP File Manager
+
+- GUI file browser over SSH
+- Upload / download files with progress
+- Inline directory navigation
+
+### 🔐 Security — The Fortress
+
+- **AES-256-GCM Vault** — session credentials encrypted with master password (PBKDF2 key derivation)
+- **Session Lock** — lock the app; credentials wiped from memory until re-authenticated
+- **Local-First** — everything runs on `127.0.0.1:7654`; no cloud, no telemetry
+- **Approval-Gate** — AI-suggested commands require your confirmation before execution
+
+### 🪟 Launcher
+
+- **Windows** — system tray app (`tray.ps1`), `launch.bat` for quick start
+- **macOS / Linux** — `launch.sh` / `stop.sh` shell scripts
+- Auto-installs npm dependencies on first run
+
+---
+
+## 🧠 Model-Agnostic Intelligence
+
+Don't lock yourself into one AI. Switch models per task:
 
 | Model | Best For |
 |-------|----------|
-| **Claude Opus / Sonnet** | 정교한 코드 분석, 복잡한 로직 설계 |
-| **Gemini 2.0 Flash** | 방대한 서버 로그 분석, 대용량 컨텍스트 |
-| **GPT-4o** | 빠르고 정확한 범용 시스템 명령어 생성 |
-| **Groq (LLaMA)** | 초고속 응답이 필요한 실시간 에이전트 작업 |
+| **Claude Opus / Sonnet** | Deep code analysis, complex logic design |
+| **Gemini 2.0 Flash** | Massive server log analysis, huge context windows |
+| **GPT-4o** | Fast, accurate general-purpose command generation |
+| **Groq (LLaMA)** | Ultra-low latency for real-time agentic tasks |
 
 ---
 
-### 🔐 2. The Fortress — Security First
+## 📊 Comparison
 
-AI에게 시스템 권한을 주는 것은 위험합니다. 그래서 우리는 가장 강력한 방패를 구축했습니다.
-
-- **AES-256-GCM Vault** — API 키는 마스터 패스워드로 암호화되어 로컬에 저장됩니다. 그 누구도, 심지어 서버도 당신의 키를 볼 수 없습니다.
-- **PBKDF2 Key Derivation** — 패스워드에서 암호화 키를 도출하는 군사급 알고리즘 적용.
-- **Approval-Gate** — AI가 제안한 모든 명령어는 당신의 승인 없이는 실행되지 않습니다.
-- **Local-First** — 모든 데이터는 당신의 물리적 장치 내에 머뭅니다. 클라우드 전송 없음.
-- **Session Lock** — 자리를 비울 때 마스터 패스워드로 즉시 잠금. 세션 정보 메모리에서 소거.
-
----
-
-### ⚡ 3. Unified Mission Control
-
-기존 ssh 툴의 편의성과 AI의 지능을 결합했습니다.
-
-- **High-Speed Web-SSH** — xterm.js 기반 로우 레이턴시 터미널, 분할 화면 지원
-- **Real-time AI Sidebar** — 터미널 바로 옆에서 대화·분석·명령을 내리는 일체형 인터페이스
-- **Agent Mode** — AI가 명령어를 제안 → 터미널에서 자동 실행 → 결과를 AI에게 피드백 → 루프
-- **SFTP Browser** — GUI 파일 탐색, 업/다운로드
-- **Snippet Manager** — 자주 쓰는 명령어 즉시 실행
-- **Multi-Server Exec** — 선택한 모든 서버에 동시 명령 브로드캐스트
-
----
-
-## 📊 Comparison: The Edge
-
-| Features | Claude Code (CLI) | Traditional Web-SSH | **DEFiNE-ZiON-AiTTY** |
-|----------|:-----------------:|:-------------------:|:----------------------:|
-| Model Freedom | Claude Only | ✗ | ✅ Claude, GPT, Gemini, Groq |
-| Visual Control | Blind / Text-only | Human-only | ✅ Real-time Dual Control |
-| Security Layer | Local Env | Plain Text | ✅ Master-Pass AES-256-GCM |
-| Agent Loop | ✗ | ✗ | ✅ Execute → Capture → Analyze |
-| Split Terminal | ✗ | △ | ✅ Native Split-View |
-| OS Compatibility | CLI-based | Browser-based | ✅ Native Desktop (Win/Mac) |
+| Feature | Claude Code CLI | Traditional Web-SSH | **DEFiNE-ZiON-AiTTY** |
+|---------|:-:|:-:|:-:|
+| Model Freedom | Claude Only | ✗ | ✅ Claude / GPT / Gemini / Groq |
+| Live Server Stats | ✗ | ✗ | ✅ CPU / MEM / Disk / IP / Uptime |
+| Split Terminal | ✗ | △ | ✅ H / V + Drag-to-Split |
+| Multi-Server Exec | ✗ | ✗ | ✅ Broadcast to all selected |
+| AI Agent Loop | ✗ | ✗ | ✅ Execute → Capture → Analyze |
+| Security Layer | Local Env | Plain Text | ✅ AES-256-GCM Master Vault |
+| SFTP Browser | ✗ | △ | ✅ Full GUI |
+| Cross-Platform | CLI | Browser | ✅ Win / Mac / Linux |
 
 ---
 
 ## 🛠️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    DEFiNE-ZiON-AiTTY                    │
-├──────────────────────────┬──────────────────────────────┤
-│       Frontend           │          Backend             │
-│  xterm.js (terminal)     │  Node.js + Express           │
-│  Split-view UI           │  WebSocket (SSH bridge)      │
-│  AI Chat Panel           │  node-ssh2 (SSH client)      │
-│  SFTP Browser            │  SFTP handler                │
-│  Snippet Manager         │  AES-256-GCM crypto          │
-└──────────────────────────┴──────────────────────────────┘
-                                    │
-              ┌─────────────────────┼─────────────────────┐
-              ▼                     ▼                     ▼
-       Anthropic API          OpenAI API          Google Gemini API
-     (Claude models)        (GPT models)         (Gemini models)
-                                    │
-                                    ▼
-                              Groq API (LLaMA)
+┌─────────────────────────────────────────────────────────────┐
+│                    DEFiNE-ZiON-AiTTY                        │
+├───────────────────────────┬─────────────────────────────────┤
+│        Frontend           │           Backend               │
+│  xterm.js v5 (terminal)   │  Node.js + Express              │
+│  Multi-tab + Split UI     │  WebSocket (SSH bridge)         │
+│  Focus Info Bar           │  ssh2 (SSH/SFTP client)         │
+│  Tab Drag-to-Split        │  AES-256-GCM crypto             │
+│  AI Chat Panel            │  Session & Snippet store        │
+│  SFTP Browser             │  AI API proxy (Claude/GPT/…)    │
+│  Snippet / Preset Panel   │                                 │
+└───────────────────────────┴─────────────────────────────────┘
+                                      │
+              ┌───────────────────────┼────────────────────────┐
+              ▼                       ▼                        ▼
+       Anthropic API            OpenAI API           Google Gemini API
+     (Claude models)          (GPT models)           (Gemini models)
+                                      │
+                                      ▼
+                               Groq API (LLaMA)
 ```
 
 ---
 
-## 🗺️ Roadmap: The Journey to ZiON
+## 🗺️ Roadmap
 
 ```
 Phase 1: Genesis ✅ COMPLETE
-  [x] High-performance Web-SSH bridge
+  [x] High-performance Web-SSH bridge (xterm.js + ssh2)
   [x] Catppuccin dark theme UI
   [x] Session & Snippet management
-  [x] Split-view terminal (H/V)
-  [x] SFTP browser with upload/download
+  [x] Split-view terminal (H / V)
+  [x] SFTP browser with upload / download
+  [x] Cross-platform launcher (Windows / macOS / Linux)
 
 Phase 2: Fortress ✅ COMPLETE
-  [x] AES-256-GCM API Key Vault
-  [x] Master Password session lock (PBKDF2)
-  [x] Multi-Model AI panel (Claude/GPT/Gemini/Groq)
+  [x] AES-256-GCM encrypted session vault
+  [x] Master Password lock / unlock (PBKDF2)
+  [x] Multi-Model AI panel (Claude / GPT / Gemini / Groq)
   [x] AI Agent Mode (Execute → Capture → Analyze loop)
   [x] Terminal context bridge to AI
 
-Phase 3: Intelligence 🚧 UPCOMING
-  [ ] AI-Native File Manager (drag & drop)
+Phase 3: Command Center ✅ COMPLETE  ← current release (v1.0.0)
+  [x] Focus Info Bar — hostname, IP(s), CPU%, MEM%, Uptime, Disk%
+  [x] Multi-IP display — primary + +N badge with full list on hover
+  [x] Disk popup — full df -h output, container filesystems filtered
+  [x] Session → always opens as new full-size tab
+  [x] Tab drag-to-split — drop on edge to create H/V split view
+  [x] Resizable split splitter + ✕ close button
+  [x] Select All / Deselect All pane toggle
+  [x] Pane drag-to-swap within split layout
+
+Phase 4: Intelligence 🚧 UPCOMING
+  [ ] AI-native file manager (drag & drop with AI rename/organize)
   [ ] Kubernetes & Docker status dashboard
   [ ] AI session history recovery & log analyzer
-  [ ] Streaming AI responses (real-time typing)
+  [ ] Streaming AI responses (real-time token output)
+  [ ] Smart alert system (CPU/MEM/Disk threshold notifications)
 
-Phase 4: Expansion 🔭 PLANNED
-  [ ] macOS Homebrew & Windows Installer
+Phase 5: Expansion 🔭 PLANNED
+  [ ] macOS Homebrew formula & Windows MSI installer
   [ ] Custom AI prompt preset marketplace
-  [ ] Multi-user collaboration mode
+  [ ] Multi-user collaboration mode (shared sessions)
   [ ] Mobile-responsive terminal view
+  [ ] Plugin/extension system
 ```
 
 ---
@@ -157,7 +210,7 @@ Phase 4: Expansion 🔭 PLANNED
 | SSH server | Any | The remote server you want to connect to |
 | AI API Key | — | Optional — only needed for AI Agent features |
 
-> **No other installation needed.** All dependencies are installed automatically on first launch.
+> **No other installation needed.** All dependencies install automatically on first launch.
 
 ---
 
@@ -174,7 +227,7 @@ Phase 4: Expansion 🔭 PLANNED
    ```
    You should see something like `v22.x.x`
 
-> **Alternative:** Install via [winget](https://learn.microsoft.com/en-us/windows/package-manager/)
+> **Alternative:** Install via winget
 > ```
 > winget install OpenJS.NodeJS.LTS
 > ```
@@ -194,10 +247,7 @@ Phase 4: Expansion 🔭 PLANNED
 
 **Option B — Homebrew (recommended for developers)**
 ```bash
-# Install Homebrew first if you don't have it
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Then install Node.js
 brew install node
 ```
 
@@ -207,11 +257,8 @@ brew install node
 <summary><b>Linux (Ubuntu / Debian)</b></summary>
 
 ```bash
-# Using NodeSource (recommended — gets latest LTS)
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt-get install -y nodejs
-
-# Verify
 node -v
 ```
 
@@ -223,8 +270,6 @@ node -v
 ```bash
 curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
 sudo dnf install -y nodejs
-
-# Verify
 node -v
 ```
 
@@ -248,7 +293,7 @@ cd DEFiNE-ZiON-AiTTY
 ### Step 2 — Launch
 
 **Windows** — double-click `launch.bat`
-> First run will automatically install dependencies. Check the system tray (bottom-right) for the icon.
+> First run installs dependencies automatically. Check the system tray (bottom-right) for the icon.
 
 **macOS / Linux**
 ```bash
@@ -259,7 +304,7 @@ chmod +x launch.sh stop.sh
 **Any OS (terminal)**
 ```bash
 npm install   # first time only
-npm start
+node server.js
 ```
 
 Then open **http://127.0.0.1:7654** in your browser.
@@ -268,19 +313,28 @@ Then open **http://127.0.0.1:7654** in your browser.
 
 ### Step 3 — First Setup
 
-1. **Set a Master Password** — this encrypts all your data locally. Don't forget it.
-2. **Add an SSH Session** — click `+ Session` in the sidebar → enter host, port, username, password or key.
-3. **Connect** — click your session to open a terminal.
+1. **Set a Master Password** — encrypts all your data locally. Don't forget it.
+2. **Add an SSH Session** — click `+ Session` in the sidebar → enter host, port, username, password or private key.
+3. **Connect** — click your session. It opens as a full-size tab.
 
 ---
 
-### Step 4 — Enable AI Agent (Optional)
+### Step 4 — Working with Split View
+
+- **H / V split**: click the split buttons in the pane header
+- **Drag-to-split**: drag any tab and drop it on the **left / right / top / bottom** edge of the terminal area
+- **Resize**: drag the splitter divider between panes
+- **Exit split**: click the **✕** button on the splitter
+
+---
+
+### Step 5 — Enable AI Agent (Optional)
 
 1. Click the **AI** tab in the left sidebar.
 2. Click **Register** next to your preferred provider (Claude, GPT, Gemini, or Groq).
-3. Paste your API key — it's encrypted immediately and never leaves your machine.
-4. Open any terminal pane → click the **🤖** button in the pane header to open the AI chat.
-5. Ask anything — or enable **Agent Mode** to let the AI run commands and analyze results automatically.
+3. Paste your API key — encrypted immediately, never leaves your machine.
+4. Open any terminal pane → click the **🤖** button to open the AI chat.
+5. Enable **Agent Mode** to let AI run commands and analyze results in a loop.
 
 > **Where to get API keys:**
 > - Claude → [console.anthropic.com](https://console.anthropic.com)
@@ -310,6 +364,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 **DEFiNE** — *Defining the New Standard of AI-System Interaction.*
 
 [![GitHub](https://img.shields.io/badge/GitHub-DEFiNE0223-181717?style=for-the-badge&logo=github)](https://github.com/DEFiNE0223)
+[![Release](https://img.shields.io/badge/Release-v1.0.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases/tag/v1.0.0)
 
 <br>
 
