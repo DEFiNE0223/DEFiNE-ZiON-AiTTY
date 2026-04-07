@@ -161,6 +161,77 @@ Phase 4: Expansion 🔭 PLANNED
 
 ---
 
+## ⚙️ Installing Node.js
+
+<details>
+<summary><b>Windows</b></summary>
+
+1. Go to **https://nodejs.org** and download the **LTS** version (`.msi` installer)
+2. Run the installer — click Next through all steps, keep all defaults
+3. Open **Command Prompt** and verify:
+   ```
+   node -v
+   ```
+   You should see something like `v22.x.x`
+
+> **Alternative:** Install via [winget](https://learn.microsoft.com/en-us/windows/package-manager/)
+> ```
+> winget install OpenJS.NodeJS.LTS
+> ```
+
+</details>
+
+<details>
+<summary><b>macOS</b></summary>
+
+**Option A — Official installer (easiest)**
+1. Go to **https://nodejs.org** and download the **LTS** `.pkg` file
+2. Run the installer and follow the steps
+3. Verify in Terminal:
+   ```bash
+   node -v
+   ```
+
+**Option B — Homebrew (recommended for developers)**
+```bash
+# Install Homebrew first if you don't have it
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Then install Node.js
+brew install node
+```
+
+</details>
+
+<details>
+<summary><b>Linux (Ubuntu / Debian)</b></summary>
+
+```bash
+# Using NodeSource (recommended — gets latest LTS)
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Verify
+node -v
+```
+
+</details>
+
+<details>
+<summary><b>Linux (RHEL / Fedora / CentOS)</b></summary>
+
+```bash
+curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
+sudo dnf install -y nodejs
+
+# Verify
+node -v
+```
+
+</details>
+
+---
+
 ## 🚀 Quick Start
 
 ### Step 1 — Download
