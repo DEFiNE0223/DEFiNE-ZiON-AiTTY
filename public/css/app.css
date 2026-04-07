@@ -125,7 +125,9 @@ input, select, textarea { font-family: inherit; font-size: 13px; }
 
 .pane-container { flex: 1; display: flex; overflow: hidden; }
 .pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; min-width: 200px; min-height: 100px; height: 100%; }
-.pane-header { height: 26px; background: var(--bg1); border-bottom: 1px solid var(--bg3); display: flex; align-items: center; padding: 0 8px; gap: 6px; flex-shrink: 0; }
+.pane-header { height: 26px; background: var(--bg1); border-bottom: 1px solid var(--bg3); display: flex; align-items: center; padding: 0 8px; gap: 6px; flex-shrink: 0; cursor: grab; user-select: none; }
+.pane-header:active { cursor: grabbing; }
+.pane.drag-over > .pane-header { background: rgba(137,180,250,0.25); border-bottom-color: var(--blue); }
 .pane-title { flex: 1; font-size: 11px; color: var(--fg3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pane-btn { background: none; color: var(--fg3); padding: 2px 5px; border-radius: 3px; font-size: 11px; }
 .pane-btn:hover { background: var(--bg3); color: var(--fg); }

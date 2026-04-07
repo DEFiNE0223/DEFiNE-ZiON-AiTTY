@@ -140,9 +140,10 @@
     <!-- Multi-exec bar -->
     <div id="multi-exec-bar">
       <span id="multi-exec-label" style="font-size:11px;color:var(--yellow)">0 selected</span>
+      <button class="btn-sm" onclick="TermManager.selectAllPanes()" data-tip="Select all panes">☑ All</button>
       <input type="text" id="multi-exec-input" placeholder="Execute command on all selected servers (Enter)">
       <button id="btn-multi-exec" class="btn-sm primary">▶ Run</button>
-      <button class="btn-sm" onclick="document.querySelectorAll('#pane-area input[type=checkbox]').forEach(c=>{c.checked=false;c.dispatchEvent(new Event('change'))})">Cancel</button>
+      <button class="btn-sm" onclick="TermManager.deselectAllPanes()">✕ Cancel</button>
     </div>
   </div>
 </div>

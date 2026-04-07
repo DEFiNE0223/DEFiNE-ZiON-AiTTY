@@ -61,12 +61,13 @@ window.TermManager = (() => {
         pane.term.write('\r\n\x1b[31m✗ Disconnected\x1b[0m  \x1b[90m[Enter] Close\x1b[0m\r\n');
         App.updateStatusBar();
         updateTabStatus(msg.paneId, false);
+        showOverlayError(msg.paneId, '✗ Disconnected — click Close or press Enter');
       } else if (msg.type === 'error') {
         pane.connected = false;
         pane.waitingClose = true;
-        pane.term.write(`\r\n\x1b[31m[Error] ${msg.message}\x1b[0m  \x1b[90m[Enter] Close\x1b[0m\r\n`);
         App.notify(msg.message, 'error');
         updateTabStatus(msg.paneId, false);
+        showOverlayError(msg.paneId, msg.message);
       }
     };
     ws.onclose = () => setTimeout(getWS, 2000);
@@ -130,7 +131,11 @@ window.TermManager = (() => {
     div.className = 'pane';
     div.id = 'pane_el_' + paneId;
     div.innerHTML = `
-      <div class="pane-header">
+      <div class="pane-header" draggable="true"
+           ondragstart="TermManager.paneDragStart(event,'${paneId}')"
+           ondragover="TermManager.paneDragOver(event,'${paneId}')"
+           ondragleave="TermManager.paneDragLeave(event,'${paneId}')"
+           ondrop="TermManager.paneDrop(event,'${paneId}')">
         <label style="display:flex;align-items:center;gap:4px;cursor:pointer">
           <input type="checkbox" onchange="TermManager.toggleMultiSelect('${paneId}',this.checked)" data-tip="Select for multi-command execution">
         </label>
@@ -143,11 +148,23 @@ window.TermManager = (() => {
       </div>
       <div class="pane-terminal" id="pterm_${paneId}"></div>
       <div class="pane-overlay" id="poverlay_${paneId}">
-        <div style="font-size:32px">🔌</div>
+        <div id="poverlay_icon_${paneId}" style="font-size:32px">🔌</div>
         <h3>${title}</h3>
-        <p>Connecting to session...</p>
+        <p id="poverlay_msg_${paneId}">Connecting to session...</p>
+        <button id="poverlay_btn_${paneId}" class="btn-primary" style="display:none;margin-top:8px" onclick="TermManager.closePane('${paneId}',true)">✕ Close</button>
       </div>`;
     return div;
+  }
+
+  function showOverlayError(paneId, msg) {
+    const icon = document.getElementById('poverlay_icon_' + paneId);
+    const txt  = document.getElementById('poverlay_msg_'  + paneId);
+    const btn  = document.getElementById('poverlay_btn_'  + paneId);
+    if (icon) icon.textContent = '❌';
+    if (txt)  txt.textContent  = msg;
+    if (btn)  btn.style.display = '';
+    const overlay = document.getElementById('poverlay_' + paneId);
+    if (overlay) overlay.style.display = '';
   }
 
   function mountTerm(paneId) {
@@ -404,6 +421,64 @@ window.TermManager = (() => {
     }
   }
 
+  // ── Pane drag-to-swap ─────────────────────────────────────────────
+  let _dragSourcePane = null;
+
+  function paneDragStart(e, paneId) {
+    _dragSourcePane = paneId;
+    e.dataTransfer.effectAllowed = 'move';
+    e.stopPropagation();
+  }
+  function paneDragOver(e, paneId) {
+    if (!_dragSourcePane || _dragSourcePane === paneId) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'move';
+    document.getElementById('pane_el_' + paneId)?.classList.add('drag-over');
+  }
+  function paneDragLeave(e, paneId) {
+    e.stopPropagation();
+    document.getElementById('pane_el_' + paneId)?.classList.remove('drag-over');
+  }
+  function paneDrop(e, targetId) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('pane_el_' + targetId)?.classList.remove('drag-over');
+    if (!_dragSourcePane || _dragSourcePane === targetId) { _dragSourcePane = null; return; }
+    const srcId = _dragSourcePane;
+    _dragSourcePane = null;
+
+    const el1 = document.getElementById('pane_el_' + srcId);
+    const el2 = document.getElementById('pane_el_' + targetId);
+    if (!el1 || !el2) return;
+
+    // Swap DOM positions
+    const p1 = el1.parentElement, n1 = el1.nextSibling;
+    const p2 = el2.parentElement, n2 = el2.nextSibling;
+    p2.insertBefore(el1, n2);
+    if (n1 === el2) { p1.insertBefore(el2, el1); }
+    else             { p1.insertBefore(el2, n1); }
+
+    // Refit both terminals
+    setTimeout(() => {
+      [srcId, targetId].forEach(id => { const p = state.panes[id]; if (p?.fitAddon) p.fitAddon.fit(); });
+    }, 50);
+  }
+
+  // ── Select all / deselect all panes ──────────────────────────────
+  function selectAllPanes() {
+    Object.keys(state.panes).forEach(paneId => {
+      const cb = document.querySelector(`#pane_el_${paneId} input[type=checkbox]`);
+      if (cb && !cb.checked) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
+    });
+  }
+  function deselectAllPanes() {
+    Object.keys(state.panes).forEach(paneId => {
+      const cb = document.querySelector(`#pane_el_${paneId} input[type=checkbox]`);
+      if (cb && cb.checked) { cb.checked = false; cb.dispatchEvent(new Event('change')); }
+    });
+  }
+
   function sendMultiExec() {
     const cmd = document.getElementById('multi-exec-input').value.trim();
     if (!cmd || !state.selectedPanes.size) return;
@@ -503,5 +578,5 @@ window.TermManager = (() => {
     document.getElementById('btn-multi-exec').addEventListener('click', sendMultiExec);
   }
 
-  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane };
+  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane, paneDragStart, paneDragOver, paneDragLeave, paneDrop, selectAllPanes, deselectAllPanes };
 })();
