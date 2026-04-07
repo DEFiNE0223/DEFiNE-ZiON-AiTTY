@@ -288,7 +288,7 @@ window.TermManager = (() => {
         <span class="tab-close" onclick="TermManager.closeTab(event,'${tab.id}')">×</span>
       </div>`;
     }
-    html += `<button id="btn-new-tab" onclick="Modals.showNewSession()">＋</button>`;
+    html += `<button id="btn-new-tab" onclick="Modals.showNewSession()" data-tip="현재 탭에 새 세션 추가">＋</button>`;
     bar.innerHTML = html;
   }
 
@@ -419,6 +419,7 @@ window.TermManager = (() => {
     } else {
       bar.classList.remove('visible');
     }
+    _updateSelectAllBtn();
   }
 
   // ── Pane drag-to-swap ─────────────────────────────────────────────
@@ -471,11 +472,28 @@ window.TermManager = (() => {
       const cb = document.querySelector(`#pane_el_${paneId} input[type=checkbox]`);
       if (cb && !cb.checked) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
     });
+    _updateSelectAllBtn();
   }
   function deselectAllPanes() {
     Object.keys(state.panes).forEach(paneId => {
       const cb = document.querySelector(`#pane_el_${paneId} input[type=checkbox]`);
       if (cb && cb.checked) { cb.checked = false; cb.dispatchEvent(new Event('change')); }
+    });
+    _updateSelectAllBtn();
+  }
+  function toggleAllPanes() {
+    const total    = Object.keys(state.panes).length;
+    const selected = state.selectedPanes.size;
+    if (total > 0 && selected >= total) deselectAllPanes();
+    else selectAllPanes();
+  }
+  function _updateSelectAllBtn() {
+    const total    = Object.keys(state.panes).length;
+    const selected = state.selectedPanes.size;
+    const allSel   = total > 0 && selected >= total;
+    document.querySelectorAll('.btn-toggle-all').forEach(btn => {
+      btn.textContent = allSel ? '☐ All' : '☑ All';
+      btn.title       = allSel ? '전체 해제' : '전체 선택';
     });
   }
 
@@ -578,5 +596,5 @@ window.TermManager = (() => {
     document.getElementById('btn-multi-exec').addEventListener('click', sendMultiExec);
   }
 
-  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane, paneDragStart, paneDragOver, paneDragLeave, paneDrop, selectAllPanes, deselectAllPanes };
+  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane, paneDragStart, paneDragOver, paneDragLeave, paneDrop, selectAllPanes, deselectAllPanes, toggleAllPanes };
 })();

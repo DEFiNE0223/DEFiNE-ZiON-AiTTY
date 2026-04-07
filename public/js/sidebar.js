@@ -34,7 +34,7 @@ window.Sidebar = (() => {
     let html = `<div class="panel-toolbar">
       <button class="btn-sm primary" onclick="Modals.showNewSession()">＋ New Session</button>
       <button class="btn-sm" onclick="Sidebar.refreshSessions()" data-tip="Refresh">↻</button>
-      <button class="btn-sm" onclick="TermManager.selectAllPanes()" data-tip="Select all for multi-exec">☑ All</button>
+      <button class="btn-sm btn-toggle-all" onclick="TermManager.toggleAllPanes()" data-tip="전체 선택/해제">☑ All</button>
     </div>`;
 
     if (sessions.length === 0) {

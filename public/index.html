@@ -140,10 +140,10 @@
     <!-- Multi-exec bar -->
     <div id="multi-exec-bar">
       <span id="multi-exec-label" style="font-size:11px;color:var(--yellow)">0 selected</span>
-      <button class="btn-sm" onclick="TermManager.selectAllPanes()" data-tip="Select all panes">☑ All</button>
+      <button class="btn-sm btn-toggle-all" onclick="TermManager.toggleAllPanes()" data-tip="전체 선택/해제">☑ All</button>
       <input type="text" id="multi-exec-input" placeholder="Execute command on all selected servers (Enter)">
       <button id="btn-multi-exec" class="btn-sm primary">▶ Run</button>
-      <button class="btn-sm" onclick="TermManager.deselectAllPanes()">✕ Cancel</button>
+      <button class="btn-sm" onclick="TermManager.deselectAllPanes()" data-tip="전체 해제">☐ 해제</button>
     </div>
   </div>
 </div>
