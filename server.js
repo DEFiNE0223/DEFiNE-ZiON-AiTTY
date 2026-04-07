@@ -79,6 +79,11 @@ wss.on('connection', (ws) => {
     else if (type === 'resize')     sshMgr.resize(paneId, msg.cols, msg.rows);
     else if (type === 'disconnect') { sshMgr.disconnect(paneId); activePanes.delete(paneId); }
     else if (type === 'multi_exec') sshMgr.multiExec(msg.paneIds, msg.command);
+    else if (type === 'server_stats') {
+      sshMgr.getStats(paneId)
+        .then(stats => ws.send(JSON.stringify({ type: 'server_stats', paneId, ...stats })))
+        .catch(() => ws.send(JSON.stringify({ type: 'server_stats', paneId, error: true })));
+    }
   });
 
   ws.on('close', () => {

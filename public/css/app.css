@@ -106,6 +106,30 @@ input, select, textarea { font-family: inherit; font-size: 13px; }
 .snippet-item .sn-cmd { font-family: var(--font-mono); font-size: 11px; color: var(--teal); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .snippet-item .sn-desc { font-size: 10px; color: var(--fg3); margin-top: 1px; }
 
+/* ── Focus Info Bar ─────────────────────────────────────────────── */
+#focus-info-bar {
+  height: 28px; background: var(--bg0); border-bottom: 1px solid var(--bg3);
+  display: none; align-items: center; gap: 8px; padding: 0 12px;
+  font-size: 11px; flex-shrink: 0; overflow: hidden;
+}
+#focus-info-bar.visible { display: flex; }
+#focus-info-bar #fib-icon { font-size: 13px; }
+#focus-info-bar #fib-name { color: var(--blue); font-size: 12px; font-weight: 600; }
+#focus-info-bar .fib-tag {
+  background: var(--bg3); color: var(--fg2); padding: 1px 6px;
+  border-radius: 3px; font-size: 10px; font-family: var(--font-mono);
+}
+#focus-info-bar .fib-sep { color: var(--bg4); }
+#focus-info-bar .fib-lbl { color: var(--fg3); font-size: 10px; }
+#focus-info-bar #fib-ip { color: var(--fg2); font-family: var(--font-mono); }
+#focus-info-bar #fib-cpu, #focus-info-bar #fib-mem { font-weight: 500; transition: color 0.3s; }
+#focus-info-bar #fib-up { color: var(--fg3); font-size: 10px; }
+#focus-info-bar #fib-refresh {
+  background: none; color: var(--fg3); padding: 1px 5px; font-size: 12px;
+  margin-left: auto; transition: color var(--transition);
+}
+#focus-info-bar #fib-refresh:hover { color: var(--blue); }
+
 /* ── Tab Bar ─────────────────────────────────────────────────────── */
 #tab-bar { height: var(--tab-h); background: var(--bg1); border-bottom: 1px solid var(--bg3); display: flex; align-items: center; overflow-x: auto; padding: 0 4px; gap: 2px; }
 #tab-bar::-webkit-scrollbar { height: 3px; }

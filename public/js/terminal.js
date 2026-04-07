@@ -21,9 +21,75 @@ window.TermManager = (() => {
       ws.send(JSON.stringify({ type: 'input', paneId, data }));
   }
 
-  // Track last focused pane for snippet/command targeting
+  // Track last focused pane for snippet/command targeting + stats
   let _lastFocusedPaneId = null;
-  function setFocusedPane(paneId) { _lastFocusedPaneId = paneId; }
+  let _statsInterval     = null;
+
+  function setFocusedPane(paneId) {
+    _lastFocusedPaneId = paneId;
+    // Show static info immediately from session config
+    const pane = state.panes[paneId];
+    if (pane) {
+      const session = state.sessions.find(s => s.id === pane.sessionId);
+      if (session) _updateFocusBar({ name: session.name, ip: session.host });
+    }
+    // Request live stats now, then every 30s
+    _requestStats(paneId);
+    if (_statsInterval) clearInterval(_statsInterval);
+    _statsInterval = setInterval(() => _requestStats(_lastFocusedPaneId), 30000);
+  }
+
+  function _requestStats(paneId) {
+    if (!paneId) return;
+    const pane = state.panes[paneId];
+    if (!pane || !pane.connected) return;
+    if (ws && ws.readyState === WebSocket.OPEN)
+      ws.send(JSON.stringify({ type: 'server_stats', paneId }));
+  }
+
+  function _handleServerStats(msg) {
+    if (msg.paneId !== _lastFocusedPaneId || msg.error) return;
+    _updateFocusBar({
+      hostname: msg.hostname,
+      ip:       msg.ip,
+      cpu:      msg.cpu,
+      memUsed:  msg.memUsed,
+      memTotal: msg.memTotal,
+      memPct:   msg.memPct,
+      uptime:   msg.uptime,
+    });
+  }
+
+  function _updateFocusBar(data) {
+    const bar = document.getElementById('focus-info-bar');
+    if (!bar) return;
+    bar.classList.add('visible');
+    if (data.name     != null) document.getElementById('fib-name').textContent = data.name;
+    if (data.hostname != null) {
+      const el = document.getElementById('fib-hostname');
+      el.textContent = data.hostname; el.style.display = data.hostname ? '' : 'none';
+    }
+    if (data.ip != null) document.getElementById('fib-ip').textContent = data.ip;
+    if (data.cpu != null) {
+      const el = document.getElementById('fib-cpu');
+      el.textContent  = `CPU ${data.cpu}%`;
+      el.style.color  = data.cpu < 50 ? 'var(--green)' : data.cpu < 80 ? 'var(--yellow)' : 'var(--red)';
+    }
+    if (data.memPct != null) {
+      const el = document.getElementById('fib-mem');
+      el.textContent  = `MEM ${data.memPct}% (${data.memUsed}/${data.memTotal}MB)`;
+      el.style.color  = data.memPct < 60 ? 'var(--green)' : data.memPct < 80 ? 'var(--yellow)' : 'var(--red)';
+    }
+    if (data.uptime != null) document.getElementById('fib-up').textContent = '⏱ ' + data.uptime;
+  }
+
+  function _hideFocusBar() {
+    const bar = document.getElementById('focus-info-bar');
+    if (bar) bar.classList.remove('visible');
+    if (_statsInterval) { clearInterval(_statsInterval); _statsInterval = null; }
+  }
+
+  function refreshFocusStats() { _requestStats(_lastFocusedPaneId); }
   function getActivePaneId() {
     // Prefer last focused pane (if still visible), else first visible pane
     if (_lastFocusedPaneId) {
@@ -42,6 +108,7 @@ window.TermManager = (() => {
     ws = new WebSocket(`ws://${location.host}`);
     ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
+      if (msg.type === 'server_stats') { _handleServerStats(msg); return; }
       const pane = state.panes[msg.paneId];
       if (!pane) return;
       if (msg.type === 'output') {
@@ -558,6 +625,7 @@ window.TermManager = (() => {
     if (Object.keys(state.panes).length === 0) {
       const welcome = document.getElementById('welcome');
       if (welcome) welcome.style.display = 'flex';
+      _hideFocusBar();
     }
 
     // Update multi-exec bar
@@ -596,5 +664,5 @@ window.TermManager = (() => {
     document.getElementById('btn-multi-exec').addEventListener('click', sendMultiExec);
   }
 
-  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane, paneDragStart, paneDragOver, paneDragLeave, paneDrop, selectAllPanes, deselectAllPanes, toggleAllPanes };
+  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane, paneDragStart, paneDragOver, paneDragLeave, paneDrop, selectAllPanes, deselectAllPanes, toggleAllPanes, refreshFocusStats };
 })();
