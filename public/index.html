@@ -73,6 +73,9 @@
     </div>
   </div>
 
+  <!-- Sidebar resize handle -->
+  <div id="sidebar-resizer"></div>
+
   <!-- Main area -->
   <div id="main">
     <!-- Tab bar -->
@@ -101,6 +104,8 @@
 
       <!-- AI Chat panel (slides in from right, z-index 15) -->
       <div id="ai-chat-panel">
+        <!-- Left-edge resize handle -->
+        <div id="ai-panel-resizer"></div>
         <!-- Header: model selection + toolbar -->
         <div id="ai-chat-header">
           <h4>🤖</h4>
@@ -339,6 +344,54 @@
     clearTimeout(_tipTimer);
     _tip.classList.remove('visible');
   });
+
+  // ── Sidebar resize ────────────────────────────────────────────────
+  (function() {
+    const resizer = document.getElementById('sidebar-resizer');
+    const sidebar = document.getElementById('sidebar');
+    resizer.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const startX = e.clientX;
+      const startW = sidebar.offsetWidth;
+      resizer.classList.add('dragging');
+      const onMove = (e) => {
+        const w = Math.max(150, Math.min(520, startW + e.clientX - startX));
+        sidebar.style.width = w + 'px';
+        Object.values(App.state.panes).forEach(p => p?.fitAddon?.fit());
+      };
+      const onUp = () => {
+        resizer.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  })();
+
+  // ── AI panel resize ───────────────────────────────────────────────
+  (function() {
+    const resizer = document.getElementById('ai-panel-resizer');
+    const panel   = document.getElementById('ai-chat-panel');
+    resizer.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const startX = e.clientX;
+      const startW = panel.offsetWidth;
+      resizer.classList.add('dragging');
+      const onMove = (e) => {
+        const w = Math.max(280, Math.min(720, startW + startX - e.clientX));
+        panel.style.width = w + 'px';
+        Object.values(App.state.panes).forEach(p => p?.fitAddon?.fit());
+      };
+      const onUp = () => {
+        resizer.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  })();
 
   // Init
   Sidebar.initTabs && Sidebar.initTabs();

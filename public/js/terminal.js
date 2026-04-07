@@ -464,7 +464,7 @@ window.TermManager = (() => {
     // Show welcome screen if nothing left
     if (Object.keys(state.panes).length === 0) {
       const welcome = document.getElementById('welcome');
-      if (welcome) welcome.style.display = '';
+      if (welcome) welcome.style.display = 'flex';
     }
 
     // Update multi-exec bar
