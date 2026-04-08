@@ -25,9 +25,9 @@
 
 ## Overview
 
-기존 Web SSH 도구들은 단순 터미널 접속에 집중되어 있어, 다수 서버의 실시간 상태 파악과 AI 활용 사이의 간극이 크다.
+Most web-based SSH tools focus on basic terminal access, leaving a gap between real-time multi-server visibility and practical AI integration.
 
-**DEFiNE-ZiON-AiTTY**는 멀티 서버 SSH 관리, 실시간 리소스 모니터링, 복수의 AI 모델을 활용한 에이전트 루프를 단일 인터페이스에 통합한 로컬 실행 기반의 웹 터미널이다. 모든 데이터는 로컬에서만 처리되며, AI가 제안하는 명령은 사용자 승인 없이 실행되지 않는다.
+**DEFiNE-ZiON-AiTTY** combines multi-server SSH management, live resource monitoring, and an AI agent loop — supporting multiple models — into a single locally-run web terminal. All data stays on your machine, and AI-suggested commands never execute without explicit user approval.
 
 ---
 
