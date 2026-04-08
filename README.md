@@ -396,7 +396,6 @@ cd DEFiNE-ZiON-AiTTY
 
 **macOS / Linux**
 ```bash
-chmod +x launch.sh stop.sh
 ./launch.sh
 ```
 
