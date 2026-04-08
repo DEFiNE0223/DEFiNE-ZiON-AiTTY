@@ -196,11 +196,120 @@ Phase 5: Expansion — PLANNED
 | Requirement | Version | Notes |
 |-------------|---------|-------|
 | [Node.js](https://nodejs.org) | 18 or higher | Runtime — required |
-| Git | Any | For cloning the repo |
+| [Git](https://git-scm.com) | Any | For cloning and updating — required |
 | SSH server | Any | The remote server you want to connect to |
 | AI API Key | — | Optional — only needed for AI Agent features |
 
 > All other dependencies install automatically on first launch.
+
+---
+
+## Installing Git (Windows)
+
+Git is required to clone the repository and pull updates.
+
+**Option A — Git for Windows (recommended)**
+1. Download from **https://git-scm.com/download/win**
+2. Run the installer — keep all defaults
+3. This installs:
+   - `git` command in **PowerShell** and **CMD**
+   - **Git Bash** (a Unix-style terminal, useful for running shell scripts)
+4. Verify in PowerShell:
+   ```powershell
+   git --version
+   ```
+
+**Option B — winget**
+```powershell
+winget install Git.Git
+# Restart PowerShell after install
+```
+
+> macOS/Linux already have git available via Homebrew (`brew install git`) or the system package manager.
+
+---
+
+## Git Command Guide (PowerShell)
+
+Common commands for managing and updating AiTTY on Windows.
+
+<details>
+<summary><b>Get the latest update</b></summary>
+
+```powershell
+cd C:\path\to\DEFiNE-ZiON-AiTTY
+
+git pull origin main
+```
+
+This downloads and applies the latest changes from GitHub. Run this whenever a new version is released.
+
+</details>
+
+<details>
+<summary><b>Check current version / what changed</b></summary>
+
+```powershell
+# Show recent commit history
+git log --oneline -10
+
+# Show what files changed in the last update
+git diff HEAD~1 --name-only
+
+# Show your current branch and status
+git status
+```
+
+</details>
+
+<details>
+<summary><b>Switch to a specific release version</b></summary>
+
+```powershell
+# List all available release tags
+git tag
+
+# Switch to a specific version (e.g. v1.0.0)
+git checkout v1.0.0
+
+# Go back to the latest
+git checkout main
+git pull origin main
+```
+
+</details>
+
+<details>
+<summary><b>You edited a file and pull is blocked</b></summary>
+
+If you changed a config file and `git pull` complains:
+
+```powershell
+# Option A: Stash your changes temporarily, pull, then restore
+git stash
+git pull origin main
+git stash pop
+
+# Option B: Discard your local changes entirely and force-update
+git fetch origin
+git reset --hard origin/main
+```
+
+> `reset --hard` will erase any local file edits. Use with caution.
+
+</details>
+
+<details>
+<summary><b>Clone fresh on a new machine</b></summary>
+
+```powershell
+git clone https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY.git
+cd DEFiNE-ZiON-AiTTY
+npm install
+node server.js
+```
+
+</details>
 
 ---
 
