@@ -40,6 +40,7 @@ fi
 # Start server (background)
 echo "[START] Starting WebSSH server... ($URL)"
 cd "$DIR"
+mkdir -p data
 nohup node server.js > data/server.log 2>&1 &
 SERVER_PID=$!
 echo $SERVER_PID > data/server.pid
