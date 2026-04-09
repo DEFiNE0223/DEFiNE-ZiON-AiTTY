@@ -116,12 +116,8 @@ IMPORTANT RULES:
     const prov = state.providers.find(p => p.id === state.currentProvider);
     if (!prov) { ms.innerHTML = ''; ms.style.display = ''; return; }
 
-    // Claude Code Local: no model selection needed
-    if (prov.noKey) {
-      ms.style.display = 'none';
-      state.currentModel = prov.models[0] || 'claude-code';
-      return;
-    }
+    // Claude Code Local: show model select normally
+    if (prov.noKey) ms.style.display = '';
 
     ms.style.display = '';
     ms.innerHTML = prov.models.map(m =>

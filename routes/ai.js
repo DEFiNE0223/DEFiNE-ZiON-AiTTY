@@ -18,7 +18,7 @@ const PROVIDERS = {
   claudecode: {
     label:  'Claude Code (Local)',
     icon:   '💻',
-    models: ['claude-code'],
+    models: ['claude-sonnet-4-5', 'claude-opus-4-5', 'claude-haiku-4-5'],
     noKey:  true,   // No API key — uses local claude CLI session
   },
   claude: {
@@ -99,7 +99,7 @@ router.post('/chat', requireUnlocked, async (req, res) => {
   // ── Claude Code (Local) — no API key needed ──────────────────────
   if (provider === 'claudecode') {
     try {
-      const content = await callClaudeCode(messages, systemPrompt);
+      const content = await callClaudeCode(messages, systemPrompt, model);
       return res.json({ ok: true, content });
     } catch (e) {
       console.error('[Claude Code Error]', e.message);
