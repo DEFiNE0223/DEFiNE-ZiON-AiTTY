@@ -114,7 +114,16 @@ IMPORTANT RULES:
     const ms = document.getElementById('ai-model-select');
     if (!ms) return;
     const prov = state.providers.find(p => p.id === state.currentProvider);
-    if (!prov) { ms.innerHTML = ''; return; }
+    if (!prov) { ms.innerHTML = ''; ms.style.display = ''; return; }
+
+    // Claude Code Local: no model selection needed
+    if (prov.noKey) {
+      ms.style.display = 'none';
+      state.currentModel = prov.models[0] || 'claude-code';
+      return;
+    }
+
+    ms.style.display = '';
     ms.innerHTML = prov.models.map(m =>
       `<option value="${m}" ${m === state.currentModel ? 'selected' : ''}>${m}</option>`
     ).join('');
@@ -502,28 +511,53 @@ IMPORTANT RULES:
     await loadProviders();
     _renderProviderSelect();
 
-    el.innerHTML = state.providers.map(p => `
-      <div class="ai-provider-item">
-        <span class="ai-provider-icon">${p.icon}</span>
-        <div class="ai-provider-info">
-          <span class="ai-provider-dot ${p.hasKey ? 'active' : ''}"></span>
-          <span class="ai-provider-label">${p.label}</span>
+    el.innerHTML = state.providers.map(p => {
+      // Claude Code Local — no API key, just show availability status
+      if (p.noKey) {
+        return `
+          <div class="ai-provider-item">
+            <span class="ai-provider-icon">${p.icon}</span>
+            <div class="ai-provider-info">
+              <span class="ai-provider-dot ${p.hasKey ? 'active' : ''}"></span>
+              <span class="ai-provider-label">${p.label}</span>
+            </div>
+            <div class="ai-provider-actions">
+              ${p.hasKey
+                ? `<span style="font-size:11px;color:var(--green)">✓ Ready</span>`
+                : `<span style="font-size:11px;color:var(--red)" title="Run: npm install -g @anthropic-ai/claude-code, then: claude login">✗ Not found</span>`}
+            </div>
+          </div>
+          ${!p.hasKey ? `
+            <div style="padding:4px 12px 8px 40px;font-size:10px;color:var(--fg3);line-height:1.5">
+              Install Claude Code CLI:<br>
+              <code style="color:var(--yellow)">npm install -g @anthropic-ai/claude-code</code><br>
+              then run <code style="color:var(--yellow)">claude login</code>
+            </div>` : ''}`;
+      }
+
+      // API key-based providers
+      return `
+        <div class="ai-provider-item">
+          <span class="ai-provider-icon">${p.icon}</span>
+          <div class="ai-provider-info">
+            <span class="ai-provider-dot ${p.hasKey ? 'active' : ''}"></span>
+            <span class="ai-provider-label">${p.label}</span>
+          </div>
+          <div class="ai-provider-actions">
+            ${p.hasKey
+              ? `<button class="btn-sm danger" onclick="AiPanel.deleteKey('${p.id}')">Delete</button>`
+              : `<button class="btn-sm primary" onclick="AiPanel.showKeyInput('${p.id}')">Register</button>`}
+          </div>
         </div>
-        <div class="ai-provider-actions">
-          ${p.hasKey
-            ? `<button class="btn-sm danger" onclick="AiPanel.deleteKey('${p.id}')">Delete</button>`
-            : `<button class="btn-sm primary" onclick="AiPanel.showKeyInput('${p.id}')">Register</button>`}
-        </div>
-      </div>
-      <div id="ai-key-input-${p.id}" class="ai-key-input-row">
-        <input type="password" id="ai-key-val-${p.id}"
-               placeholder="${p.id} API Key..."
-               autocomplete="new-password"
-               onkeydown="if(event.key==='Enter')AiPanel.saveKey('${p.id}')">
-        <button class="btn-sm primary" onclick="AiPanel.saveKey('${p.id}')">Save</button>
-        <button class="btn-sm" onclick="AiPanel.hideKeyInput('${p.id}')">✕</button>
-      </div>
-    `).join('');
+        <div id="ai-key-input-${p.id}" class="ai-key-input-row">
+          <input type="password" id="ai-key-val-${p.id}"
+                 placeholder="${p.id} API Key..."
+                 autocomplete="new-password"
+                 onkeydown="if(event.key==='Enter')AiPanel.saveKey('${p.id}')">
+          <button class="btn-sm primary" onclick="AiPanel.saveKey('${p.id}')">Save</button>
+          <button class="btn-sm" onclick="AiPanel.hideKeyInput('${p.id}')">✕</button>
+        </div>`;
+    }).join('');
   }
 
   function showKeyInput(id) {

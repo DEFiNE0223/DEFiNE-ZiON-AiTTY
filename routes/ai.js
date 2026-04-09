@@ -11,9 +11,16 @@ const router  = express.Router();
 const cryptoLib = require('../lib/crypto');
 const store     = require('../lib/store');
 const { getMaster } = require('./auth');
+const { checkClaudeCodeAvailable, callClaudeCode } = require('../lib/claude-code-agent');
 
 // ── Supported provider definitions ───────────────────────────────────
 const PROVIDERS = {
+  claudecode: {
+    label:  'Claude Code (Local)',
+    icon:   '💻',
+    models: ['claude-code'],
+    noKey:  true,   // No API key — uses local claude CLI session
+  },
   claude: {
     label:  'Claude (Anthropic)',
     icon:   '🟠',
@@ -44,15 +51,17 @@ function requireUnlocked(req, res, next) {
 }
 
 // ── GET /api/ai/providers ─────────────────────────────────────────────
-// Return provider list + whether key is registered
-router.get('/providers', (req, res) => {
+// Return provider list + whether key is registered (or CLI available for claudecode)
+router.get('/providers', async (req, res) => {
   const keys = store.readApiKeys();
+  const ccAvail = await checkClaudeCodeAvailable().catch(() => false);
   const list = Object.entries(PROVIDERS).map(([id, p]) => ({
     id,
     label:  p.label,
     icon:   p.icon,
     models: p.models,
-    hasKey: !!keys[id],
+    noKey:  !!p.noKey,
+    hasKey: p.noKey ? ccAvail : !!keys[id],
   }));
   res.json(list);
 });
@@ -87,6 +96,18 @@ router.post('/chat', requireUnlocked, async (req, res) => {
   if (!PROVIDERS[provider])
     return res.status(400).json({ error: 'Unknown provider' });
 
+  // ── Claude Code (Local) — no API key needed ──────────────────────
+  if (provider === 'claudecode') {
+    try {
+      const content = await callClaudeCode(messages, systemPrompt);
+      return res.json({ ok: true, content });
+    } catch (e) {
+      console.error('[Claude Code Error]', e.message);
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
+  // ── API key-based providers ───────────────────────────────────────
   const keys = store.readApiKeys();
   if (!keys[provider])
     return res.status(400).json({ error: `${PROVIDERS[provider].label} API Key not found` });
