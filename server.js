@@ -56,7 +56,10 @@ wss.on('connection', (ws) => {
     const { type, paneId } = msg;
 
     if (type === 'connect') {
-      const session = getDecrypted(msg.sessionId);
+      let session;
+      try { session = getDecrypted(msg.sessionId); } catch (e) {
+        return ws.send(JSON.stringify({ type: 'error', paneId, message: 'Failed to decrypt session — try re-locking and unlocking: ' + e.message }));
+      }
       if (!session) return ws.send(JSON.stringify({ type: 'error', paneId, message: 'Session not found or locked' }));
       try {
         await sshMgr.connect({

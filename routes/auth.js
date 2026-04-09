@@ -63,13 +63,13 @@ router.post('/change-password', (req, res) => {
     return res.status(401).json({ error: 'Current password is incorrect' });
 
   try {
-    // Re-encrypt sessions
+    // Re-encrypt sessions (credentials stored in s.credential, not s.password)
     const sessions = store.readSessions();
     const reEncryptedSessions = sessions.map(s => {
-      if (!s.password) return s;
+      if (!s.credential) return s;
       try {
-        const plain = decrypt(s.password, currentPassword);
-        return { ...s, password: encrypt(plain, newPassword) };
+        const plain = decrypt(s.credential, currentPassword);
+        return { ...s, credential: encrypt(plain, newPassword) };
       } catch { return s; }
     });
     store.writeSessions(reEncryptedSessions);
