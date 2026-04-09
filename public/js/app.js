@@ -114,6 +114,63 @@ window.App = (() => {
     showUnlockOverlay();
   }
 
+  // ── Change Master Password ────────────────────────────────────────
+  function showChangePasswordModal() {
+    const m = document.getElementById('modal-change-password');
+    if (!m) return;
+    document.getElementById('inp-cur-pw').value  = '';
+    document.getElementById('inp-new-pw').value  = '';
+    document.getElementById('inp-new-pw2').value = '';
+    document.getElementById('change-pw-error').textContent = '';
+    m.classList.remove('hidden');
+  }
+
+  async function submitChangePassword() {
+    const cur  = document.getElementById('inp-cur-pw').value;
+    const nw   = document.getElementById('inp-new-pw').value;
+    const nw2  = document.getElementById('inp-new-pw2').value;
+    const errEl = document.getElementById('change-pw-error');
+    errEl.textContent = '';
+
+    if (!cur || !nw) { errEl.textContent = 'All fields required'; return; }
+    if (nw !== nw2)  { errEl.textContent = 'New passwords do not match'; return; }
+    if (nw.length < 4) { errEl.textContent = 'Min 4 characters'; return; }
+
+    try {
+      await api('POST', '/auth/change-password', { currentPassword: cur, newPassword: nw });
+      document.getElementById('modal-change-password').classList.add('hidden');
+      notify('✅ Master password changed', 'success');
+    } catch (e) {
+      errEl.textContent = e.message;
+    }
+  }
+
+  // ── Reset App ────────────────────────────────────────────────────
+  function showResetModal() {
+    const m = document.getElementById('modal-reset');
+    if (!m) return;
+    document.getElementById('inp-reset-pw').value = '';
+    document.getElementById('reset-error').textContent = '';
+    m.classList.remove('hidden');
+  }
+
+  async function submitReset() {
+    const pw = document.getElementById('inp-reset-pw').value;
+    const errEl = document.getElementById('reset-error');
+    errEl.textContent = '';
+    if (!pw) { errEl.textContent = 'Password required'; return; }
+
+    if (!confirm('⚠️ This will permanently delete ALL sessions, API keys, and the master password. This cannot be undone. Are you sure?')) return;
+
+    try {
+      await api('POST', '/auth/reset', { password: pw });
+      notify('App has been reset. Reloading…', 'info');
+      setTimeout(() => location.reload(), 1500);
+    } catch (e) {
+      errEl.textContent = e.message;
+    }
+  }
+
   // ── Load all data ─────────────────────────────────────────────────
   async function loadAll() {
     const [sessions, snippets, presets] = await Promise.all([
@@ -149,5 +206,6 @@ window.App = (() => {
     checkAuth();
   }
 
-  return { state, api, notify, loadAll, updateStatusBar, init, lock };
+  return { state, api, notify, loadAll, updateStatusBar, init, lock,
+           showChangePasswordModal, submitChangePassword, showResetModal, submitReset };
 })();

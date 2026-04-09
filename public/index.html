@@ -28,6 +28,8 @@
   <div id="sidebar">
     <div id="sidebar-header">
       <span class="app-title">⚡ AiTTY</span>
+      <button id="btn-change-pw" title="Change Master Password" onclick="App.showChangePasswordModal()" style="font-size:13px;background:none;border:none;cursor:pointer;color:var(--fg2);padding:4px 6px;border-radius:4px" onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--fg2)'">🔑</button>
+      <button id="btn-reset-app" title="Reset App (wipe all data)" onclick="App.showResetModal()" style="font-size:13px;background:none;border:none;cursor:pointer;color:var(--fg3);padding:4px 6px;border-radius:4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--fg3)'">⚠️</button>
       <button id="btn-lock" title="Lock">🔒</button>
     </div>
     <div id="sidebar-tabs">
@@ -275,6 +277,50 @@
     <div class="modal-footer">
       <button class="btn-cancel" onclick="Modals.hideModal('modal-snippet')">Cancel</button>
       <button class="btn-primary" id="btn-save-snippet">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Change Master Password ─────────────────────────────── -->
+<div id="modal-change-password" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:400px">
+    <h2>🔑 Change Master Password</h2>
+    <div class="form-group">
+      <label>Current Password</label>
+      <input type="password" id="inp-cur-pw" placeholder="Current password" autocomplete="current-password">
+    </div>
+    <div class="form-group">
+      <label>New Password</label>
+      <input type="password" id="inp-new-pw" placeholder="New password" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label>Confirm New Password</label>
+      <input type="password" id="inp-new-pw2" placeholder="Repeat new password" autocomplete="new-password">
+    </div>
+    <p id="change-pw-error" style="color:var(--red);font-size:12px;margin:4px 0 0"></p>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="document.getElementById('modal-change-password').classList.add('hidden')">Cancel</button>
+      <button class="btn-primary" onclick="App.submitChangePassword()">Change Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Reset App ───────────────────────────────────────────── -->
+<div id="modal-reset" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:400px">
+    <h2>⚠️ Reset App</h2>
+    <p style="color:var(--fg2);font-size:13px;line-height:1.6;margin-bottom:12px">
+      This will permanently delete <strong>all sessions, API keys, snippets, and the master password</strong>.<br>
+      <span style="color:var(--red)">This action cannot be undone.</span>
+    </p>
+    <div class="form-group">
+      <label>Confirm with Current Password</label>
+      <input type="password" id="inp-reset-pw" placeholder="Master password" autocomplete="current-password">
+    </div>
+    <p id="reset-error" style="color:var(--red);font-size:12px;margin:4px 0 0"></p>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="document.getElementById('modal-reset').classList.add('hidden')">Cancel</button>
+      <button class="btn-primary" style="background:var(--red)" onclick="App.submitReset()">Reset Everything</button>
     </div>
   </div>
 </div>

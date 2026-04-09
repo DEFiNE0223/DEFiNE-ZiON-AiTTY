@@ -1,6 +1,6 @@
 const express = require('express');
 const router  = express.Router();
-const { hashPassword, verifyPassword } = require('../lib/crypto');
+const { hashPassword, verifyPassword, encrypt, decrypt } = require('../lib/crypto');
 const store = require('../lib/store');
 
 // In-memory master password (cleared on lock)
@@ -44,6 +44,78 @@ router.post('/unlock', (req, res) => {
 // Lock
 router.post('/lock', (req, res) => {
   masterPassword = null;
+  res.json({ ok: true });
+});
+
+// ── Change Master Password ────────────────────────────────────────────
+// Re-encrypts ALL stored secrets (sessions, API keys) with the new password
+router.post('/change-password', (req, res) => {
+  if (!masterPassword) return res.status(401).json({ error: 'Unlock required' });
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword)
+    return res.status(400).json({ error: 'Both passwords required' });
+  if (newPassword.length < 4)
+    return res.status(400).json({ error: 'New password too short (min 4 chars)' });
+
+  // Verify current password
+  const cfg = store.readConfig();
+  if (!verifyPassword(currentPassword, cfg.masterSalt, cfg.masterHash))
+    return res.status(401).json({ error: 'Current password is incorrect' });
+
+  try {
+    // Re-encrypt sessions
+    const sessions = store.readSessions();
+    const reEncryptedSessions = sessions.map(s => {
+      if (!s.password) return s;
+      try {
+        const plain = decrypt(s.password, currentPassword);
+        return { ...s, password: encrypt(plain, newPassword) };
+      } catch { return s; }
+    });
+    store.writeSessions(reEncryptedSessions);
+
+    // Re-encrypt API keys
+    const apiKeys = store.readApiKeys();
+    const reEncryptedKeys = {};
+    for (const [provider, encVal] of Object.entries(apiKeys)) {
+      try {
+        const plain = decrypt(encVal, currentPassword);
+        reEncryptedKeys[provider] = encrypt(plain, newPassword);
+      } catch { reEncryptedKeys[provider] = encVal; }
+    }
+    store.writeApiKeys(reEncryptedKeys);
+
+    // Update master hash
+    const { salt, hash } = hashPassword(newPassword);
+    store.writeConfig({ ...cfg, masterSalt: salt, masterHash: hash });
+    masterPassword = newPassword;
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[Change Password Error]', e.message);
+    res.status(500).json({ error: 'Failed to re-encrypt data: ' + e.message });
+  }
+});
+
+// ── Reset App (full wipe) ─────────────────────────────────────────────
+// Deletes all data — sessions, API keys, config. Cannot be undone.
+router.post('/reset', (req, res) => {
+  const { password } = req.body;
+  const cfg = store.readConfig();
+
+  // Require current password if configured (safety gate)
+  if (cfg.masterHash) {
+    if (!password) return res.status(400).json({ error: 'Password required to reset' });
+    if (!verifyPassword(password, cfg.masterSalt, cfg.masterHash))
+      return res.status(401).json({ error: 'Incorrect password' });
+  }
+
+  store.writeSessions([]);
+  store.writeSnippets([]);
+  store.writeApiKeys({});
+  store.writeConfig({});
+  masterPassword = null;
+
   res.json({ ok: true });
 });
 

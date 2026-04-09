@@ -12,7 +12,6 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@anthropic-ai/claude-code": "^2.1.97",
     "express": "^5.2.1",
     "multer": "^2.1.1",
     "ssh2": "^1.17.0",
