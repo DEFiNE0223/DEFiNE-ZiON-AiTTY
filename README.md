@@ -12,7 +12,7 @@
 ### **AiTTY** — AI-Integrated Terminal for Infrastructure Engineers
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases)
+[![Version](https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=nodedotjs)](https://nodejs.org)
 [![xterm.js](https://img.shields.io/badge/xterm.js-5.3-black?style=for-the-badge)](https://xtermjs.org)
 [![Claude](https://img.shields.io/badge/Claude-Sonnet%20%7C%20Opus%20%7C%20Haiku-orange?style=for-the-badge)](https://anthropic.com)
@@ -67,10 +67,17 @@ Real-time live stats for the currently focused server pane — always visible at
 
 ### AI Assistant
 
-- Built-in AI chat panel per pane (Claude / GPT-4o / Gemini / Groq)
+- Built-in AI chat panel per pane
+- **Claude Code (Local)** — use your existing Claude subscription, no API key needed
+- **API mode** — Claude / GPT-4o / Gemini / Groq via API key
 - **Agent Mode** — AI suggests command → executes in terminal → captures output → feeds back to AI (loop)
 - Terminal output context bridge — AI sees what you see
 - All API keys encrypted with AES-256-GCM — never leave your machine
+
+### Security & Settings
+
+- **Change Master Password** — re-encrypts all stored data with the new password, zero data loss
+- **Reset App** — full factory reset (requires password confirmation)
 
 ### SFTP File Manager
 
@@ -93,14 +100,46 @@ Real-time live stats for the currently focused server pane — always visible at
 
 ---
 
-## Model Support
+## AI Model Support
 
-| Model | Best For |
-|-------|----------|
+### Option A — Claude Code Local (No API Key)
+
+Use your existing **Claude Pro / Max subscription** — no separate API key needed.
+
+| Step | Command |
+|------|---------|
+| 1. Install Claude Code CLI | `npm install -g @anthropic-ai/claude-code` |
+| 2. Login | `claude login` (browser opens → sign in with Anthropic account) |
+| 3. Done | AiTTY auto-detects CLI → `💻 Claude Code (Local)` shows ✓ Ready |
+
+> **Requires**: Claude Pro ($20/mo) or Max plan. Free tier has limited access.
+>
+> **Already using Claude Code** for development? CLI is already installed — just open AiTTY and it works immediately.
+
+**Windows / macOS:**
+```powershell
+npm install -g @anthropic-ai/claude-code
+claude login
+```
+
+**How it works:**
+```
+AiTTY → runs claude CLI locally → uses your login session → Anthropic servers
+```
+No API key stored. Uses your subscription quota. Model selectable (Sonnet / Opus / Haiku).
+
+---
+
+### Option B — API Key (Pay-per-token)
+
+| Provider | Best For |
+|----------|----------|
 | **Claude Opus / Sonnet** | Deep code analysis, complex logic design |
 | **Gemini 2.0 Flash** | Massive server log analysis, huge context windows |
 | **GPT-4o** | Fast, accurate general-purpose command generation |
 | **Groq (LLaMA)** | Ultra-low latency for real-time agentic tasks |
+
+Register API keys in the AI tab of the sidebar — encrypted with AES-256-GCM, never leave your machine.
 
 ---
 
@@ -173,6 +212,15 @@ Phase 3: Command Center — COMPLETE  (v1.0.0)
   [x] Resizable split splitter + close button
   [x] Select All / Deselect All pane toggle
   [x] Pane drag-to-swap within split layout
+
+Phase 3.5: Local AI & Security — COMPLETE  (v1.1.0)
+  [x] Claude Code (Local) integration — use Claude subscription, no API key
+  [x] Model selection for Claude Code (Sonnet / Opus / Haiku)
+  [x] SSH assistant system prompt — AI gives commands, never fakes output
+  [x] Change Master Password — re-encrypts all data with zero loss
+  [x] Reset App — full factory reset with password confirmation
+  [x] launch.sh auto-creates data/ directory on first run
+  [x] launch.sh / stop.sh executable bit set in git repo (no chmod needed)
 
 Phase 4: Intelligence — UPCOMING
   [ ] AI-native file manager (drag & drop with AI rename/organize)
@@ -426,19 +474,36 @@ Then open **http://127.0.0.1:7654** in your browser.
 
 ---
 
-### Step 5 — AI Agent (Optional)
+### Step 5 — Enable AI (Optional)
+
+**Option A — Claude Code Local (recommended, no API key)**
+
+```powershell
+# Windows / macOS
+npm install -g @anthropic-ai/claude-code
+claude login
+```
+
+After login, restart AiTTY — `💻 Claude Code (Local)` will show **✓ Ready** in the AI sidebar automatically.
+
+**Option B — API Key**
 
 1. Click the **AI** tab in the left sidebar.
 2. Click **Register** next to your preferred provider (Claude, GPT, Gemini, or Groq).
 3. Paste your API key — encrypted immediately, never leaves your machine.
-4. Open any terminal pane → click the AI button to open the chat panel.
-5. Enable **Agent Mode** to let AI run commands and analyze results in a loop.
 
 > API key sources:
 > - Claude → [console.anthropic.com](https://console.anthropic.com)
 > - GPT → [platform.openai.com](https://platform.openai.com)
 > - Gemini → [aistudio.google.com](https://aistudio.google.com)
 > - Groq → [console.groq.com](https://console.groq.com)
+
+**Using AI in a terminal pane:**
+
+1. Open any terminal pane → click the **🤖** button to open the AI chat
+2. Ask anything: "Check disk usage", "Why is CPU high?", "Show k8s pod status"
+3. AI responds with the exact command to run — click **▶ Run** to execute in the SSH session
+4. Enable **Agent Mode** to let AI run commands and analyze results automatically in a loop
 
 ---
 
@@ -457,6 +522,6 @@ MIT License — see the [LICENSE](LICENSE) file for details.
 <div align="center">
 
 [![GitHub](https://img.shields.io/badge/GitHub-DEFiNE0223-181717?style=for-the-badge&logo=github)](https://github.com/DEFiNE0223)
-[![Release](https://img.shields.io/badge/Release-v1.0.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases/tag/v1.0.0)
+[![Release](https://img.shields.io/badge/Release-v1.1.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases/tag/v1.1.0)
 
 </div>
