@@ -188,7 +188,7 @@
   <span class="sb-sep">│</span>
   <span class="sb-item" id="sb-connected"></span>
   <div id="sb-right">
-    <span style="opacity:0.7">AiTTY v2.0</span>
+    <span style="opacity:0.7;cursor:pointer;transition:opacity 0.15s" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.7'" onclick="App.showAboutModal()" title="About AiTTY">AiTTY v1.2.0</span>
     <span style="opacity:0.5">localhost:7654</span>
   </div>
 </div>
@@ -381,6 +381,74 @@
     <div class="modal-footer">
       <button class="btn-cancel" onclick="document.getElementById('modal-import').classList.add('hidden')">Cancel</button>
       <button class="btn-primary" onclick="App.submitImport()">📤 Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: About ───────────────────────────────────────────────── -->
+<div id="modal-about" class="modal-backdrop hidden" onclick="if(event.target===this)this.classList.add('hidden')">
+  <div class="modal" style="max-width:480px;padding:0;overflow:hidden">
+    <!-- Header banner -->
+    <div style="background:linear-gradient(135deg,var(--blue) 0%,var(--mauve) 100%);padding:28px 28px 20px;text-align:center;position:relative">
+      <div style="font-size:52px;line-height:1;margin-bottom:10px">🖥️</div>
+      <div style="font-size:22px;font-weight:700;color:#fff;letter-spacing:1px">AiTTY</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;letter-spacing:2px;text-transform:uppercase">AI-Integrated Terminal</div>
+      <div style="margin-top:12px;display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,0.25);border-radius:20px;padding:4px 14px">
+        <span style="font-size:11px;color:#a6e3a1;font-weight:600">v1.2.0</span>
+        <span style="color:rgba(255,255,255,0.4);font-size:10px">•</span>
+        <span style="font-size:11px;color:rgba(255,255,255,0.7)">2026-04-10</span>
+      </div>
+    </div>
+
+    <!-- Author card -->
+    <div style="padding:20px 28px 0">
+      <div style="display:flex;align-items:center;gap:14px;background:var(--bg2);border-radius:10px;padding:14px 16px;border:1px solid var(--border)">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--mauve));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">👤</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;color:var(--fg)">DEFiNE0223</div>
+          <div style="font-size:12px;color:var(--fg3);margin-top:2px">define0223@gmail.com</div>
+          <div style="margin-top:6px;display:flex;gap:8px">
+            <a href="https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:4px;background:var(--bg3);border-radius:4px;padding:2px 8px;border:1px solid var(--border)">
+              ⑆ GitHub Repo
+            </a>
+            <a href="https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases/tag/v1.2.0" target="_blank" style="font-size:11px;color:var(--green);text-decoration:none;display:flex;align-items:center;gap:4px;background:var(--bg3);border-radius:4px;padding:2px 8px;border:1px solid var(--border)">
+              🏷️ v1.2.0 Release
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Release notes -->
+    <div style="padding:16px 28px 0">
+      <div style="font-size:11px;font-weight:700;color:var(--fg3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">What's New in v1.2.0</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:14px;flex-shrink:0">◀▶</span>
+          <div><div style="font-size:12px;font-weight:600;color:var(--fg)">Collapsible Sidebar</div><div style="font-size:11px;color:var(--fg3)">Icon-rail mode — click any tab to auto-expand</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:14px;flex-shrink:0">🖱️</span>
+          <div><div style="font-size:12px;font-weight:600;color:var(--fg)">Drag Session → Split Pane</div><div style="font-size:11px;color:var(--fg3)">Drag from sidebar to any terminal — drop on edge zones to split</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:14px;flex-shrink:0">📥</span>
+          <div><div style="font-size:12px;font-weight:600;color:var(--fg)">Session Backup & Restore</div><div style="font-size:11px;color:var(--fg3)">Export encrypted JSON with backup passphrase, import on any machine</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:14px;flex-shrink:0">⚠️</span>
+          <div><div style="font-size:12px;font-weight:600;color:var(--fg)">Factory Reset from Login</div><div style="font-size:11px;color:var(--fg3)">Wipe all data without a password — for forgotten master password</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Previous versions link -->
+    <div style="padding:14px 28px 20px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border)">
+      <a href="https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases" target="_blank" style="font-size:11px;color:var(--fg3);text-decoration:none">📋 All Releases</a>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:11px;color:var(--fg3)">MIT License</span>
+        <button class="btn-primary" style="padding:5px 16px;font-size:12px" onclick="document.getElementById('modal-about').classList.add('hidden')">Close</button>
+      </div>
     </div>
   </div>
 </div>

@@ -12,7 +12,7 @@
 ### **AiTTY** — AI-Integrated Terminal for Infrastructure Engineers
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.1.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases)
+[![Version](https://img.shields.io/badge/Version-1.2.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=nodedotjs)](https://nodejs.org)
 [![xterm.js](https://img.shields.io/badge/xterm.js-5.3-black?style=for-the-badge)](https://xtermjs.org)
 [![Claude](https://img.shields.io/badge/Claude-Sonnet%20%7C%20Opus%20%7C%20Haiku-orange?style=for-the-badge)](https://anthropic.com)
@@ -28,6 +28,18 @@
 Most web-based SSH tools focus on basic terminal access, leaving a gap between real-time multi-server visibility and practical AI integration.
 
 **DEFiNE-ZiON-AiTTY** combines multi-server SSH management, live resource monitoring, and an AI agent loop — supporting multiple models — into a single locally-run web terminal. All data stays on your machine, and AI-suggested commands never execute without explicit user approval.
+
+---
+
+## What's New in v1.2.0
+
+| Feature | Description |
+|---------|-------------|
+| **Collapsible Sidebar** | Toggle to icon-rail mode — click any icon to auto-expand |
+| **Session Drag-to-Split** | Drag a session from the list onto any pane — drop on L/R/T/B edge to split, center to open in new tab |
+| **Backup & Restore** | Export sessions as AES-256-GCM encrypted JSON with a backup passphrase; import on any machine |
+| **Factory Reset (no password)** | Wipe all data from the login screen — for forgotten master password |
+| **About Modal** | Click the version label (bottom-right) for version info, release notes, and links |
 
 ---
 
@@ -222,7 +234,17 @@ Phase 3.5: Local AI & Security — COMPLETE  (v1.1.0)
   [x] launch.sh auto-creates data/ directory on first run
   [x] launch.sh / stop.sh executable bit set in git repo (no chmod needed)
 
-Phase 4: Intelligence — UPCOMING
+Phase 4: Power UX — COMPLETE  (v1.2.0)
+  [x] Collapsible sidebar — icon-rail mode with smooth animation
+  [x] Click collapsed tab to auto-expand sidebar
+  [x] Auto-expand sidebar when last terminal tab is closed
+  [x] Session drag-to-split — drag session from list, drop on L/R/T/B/center of any pane
+  [x] Session backup export — AES-256-GCM encrypted JSON with backup passphrase
+  [x] Session import / restore — decrypt backup, re-encrypt with master password (merge or replace)
+  [x] Factory reset from login screen — wipe all data without master password
+  [x] About modal — version info, release notes, author, links (click version in status bar)
+
+Phase 5: Intelligence — UPCOMING
   [ ] AI-native file manager (drag & drop with AI rename/organize)
   [ ] Kubernetes & Docker status dashboard
   [ ] AI session history recovery & log analyzer
@@ -522,6 +544,6 @@ MIT License — see the [LICENSE](LICENSE) file for details.
 <div align="center">
 
 [![GitHub](https://img.shields.io/badge/GitHub-DEFiNE0223-181717?style=for-the-badge&logo=github)](https://github.com/DEFiNE0223)
-[![Release](https://img.shields.io/badge/Release-v1.1.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases/tag/v1.1.0)
+[![Release](https://img.shields.io/badge/Release-v1.2.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases/tag/v1.2.0)
 
 </div>

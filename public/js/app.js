@@ -313,11 +313,17 @@ window.App = (() => {
     checkAuth();
   }
 
+  // ── About Modal ──────────────────────────────────────────────────
+  function showAboutModal() {
+    document.getElementById('modal-about').classList.remove('hidden');
+  }
+
   return { state, api, notify, loadAll, updateStatusBar, init, lock,
            toggleSidebar,
            showChangePasswordModal, submitChangePassword,
            showResetModal, submitReset,
            showForceResetFromLogin,
            showExportModal, submitExport,
-           showImportModal, submitImport };
+           showImportModal, submitImport,
+           showAboutModal };
 })();
