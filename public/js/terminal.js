@@ -138,6 +138,107 @@ window.TermManager = (() => {
     if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'server_disk', paneId }));
   }
 
+  // ── Session drag-to-split drop zones ─────────────────────────────
+  function showSessionDropZones(sessionId) {
+    Object.keys(state.panes).forEach(paneId => {
+      const el = document.getElementById('pane_el_' + paneId);
+      if (!el || el.style.display === 'none') return;
+
+      const overlay = document.createElement('div');
+      overlay.className = 'session-drop-overlay';
+      overlay.id = 'sdo_' + paneId;
+
+      const zones = [
+        { name: 'top',    label: '▲ 위 분할',   icon: '▲' },
+        { name: 'bottom', label: '▼ 아래 분할', icon: '▼' },
+        { name: 'left',   label: '◀ 왼쪽 분할', icon: '◀' },
+        { name: 'right',  label: '▶ 오른쪽 분할',icon: '▶' },
+        { name: 'center', label: '＋ 새 탭',    icon: '＋' },
+      ];
+      zones.forEach(({ name, label, icon }) => {
+        const z = document.createElement('div');
+        z.className = `sdo-zone sdo-${name}`;
+        z.innerHTML = `<span class="sdo-icon">${icon}</span><span class="sdo-label">${label}</span>`;
+        z.addEventListener('dragover',  e => { e.preventDefault(); z.classList.add('active'); });
+        z.addEventListener('dragleave', () => z.classList.remove('active'));
+        z.addEventListener('drop', e => {
+          e.preventDefault();
+          const sid = e.dataTransfer.getData('session-id') || sessionId;
+          hideSessionDropZones();
+          _doSessionSplitDrop(paneId, sid, name);
+        });
+        overlay.appendChild(z);
+      });
+      el.appendChild(overlay);
+    });
+  }
+
+  function hideSessionDropZones() {
+    document.querySelectorAll('.session-drop-overlay').forEach(el => el.remove());
+  }
+
+  function _doSessionSplitDrop(existingPaneId, sessionId, zone) {
+    if (zone === 'center') {
+      // Open as new tab
+      window.Sidebar.connectSession(sessionId);
+      return;
+    }
+    const session = state.sessions.find(s => s.id === sessionId);
+    if (!session) return;
+
+    const existingEl = document.getElementById('pane_el_' + existingPaneId);
+    if (!existingEl) return;
+
+    const newId = 'pane_' + (++paneCounter);
+    const newEl = createPaneEl(newId, session.name);
+    state.panes[newId] = { sessionId, term: createTerm(), connected: false };
+
+    const isHorizontal = (zone === 'left' || zone === 'right');
+    const insertBefore  = (zone === 'left'  || zone === 'top');
+    const direction     = isHorizontal ? 'horizontal' : 'vertical';
+
+    const parent  = existingEl.parentElement;
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `display:flex;flex:1;overflow:hidden;min-height:0;min-width:0;flex-direction:${isHorizontal ? 'row' : 'column'}`;
+
+    const splitter = document.createElement('div');
+    splitter.className = `splitter${isHorizontal ? '' : ' vertical'}`;
+    makeDraggable(splitter, direction);
+
+    parent.insertBefore(wrapper, existingEl);
+    if (insertBefore) {
+      wrapper.appendChild(newEl);
+      wrapper.appendChild(splitter);
+      wrapper.appendChild(existingEl);
+    } else {
+      wrapper.appendChild(existingEl);
+      wrapper.appendChild(splitter);
+      wrapper.appendChild(newEl);
+    }
+
+    // Add to current active tab's panes
+    const tab = state.tabs.find(t => t.panes.includes(existingPaneId));
+    if (tab) tab.panes.push(newId);
+
+    setTimeout(() => {
+      mountTerm(newId);
+      if (state.panes[existingPaneId]?.fitAddon)
+        setTimeout(() => state.panes[existingPaneId].fitAddon.fit(), 100);
+      getWS();
+      setTimeout(() => {
+        ws.send(JSON.stringify({ type: 'connect', paneId: newId, sessionId }));
+        const timer = startLogFlush(newId, sessionId);
+        state.panes[newId].logTimer = timer;
+      }, 150);
+    }, 50);
+
+    const preset = App.state.presets.find(p => p.id === session.osType) || {};
+    PresetPanel.setPreset(newId, preset);
+
+    const labels = { top:'위', bottom:'아래', left:'왼쪽', right:'오른쪽' };
+    App.notify(`${session.name} → ${labels[zone]} 분할`, 'success');
+  }
+
   // ── Tab drag-to-split ─────────────────────────────────────────────
   let _dragSourceTab = null;
 
@@ -822,6 +923,9 @@ window.TermManager = (() => {
       const welcome = document.getElementById('welcome');
       if (welcome) welcome.style.display = 'flex';
       _hideFocusBar();
+      // Auto-expand sidebar if it was collapsed
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar?.classList.contains('collapsed')) App.toggleSidebar();
     }
 
     // Update multi-exec bar
@@ -860,5 +964,5 @@ window.TermManager = (() => {
     document.getElementById('btn-multi-exec').addEventListener('click', sendMultiExec);
   }
 
-  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane, paneDragStart, paneDragOver, paneDragLeave, paneDrop, selectAllPanes, deselectAllPanes, toggleAllPanes, refreshFocusStats, exitSplitView, tabDragStart, tabDragEnd, showDiskInfo };
+  return { init, connectNewPane, closePane, closeTab, switchTab, splitH, splitV, toggleMultiSelect, disconnectPane, pasteCommand, renderTabs, sendInput, addOutputListener, removeOutputListener, getActivePaneId, setFocusedPane, paneDragStart, paneDragOver, paneDragLeave, paneDrop, selectAllPanes, deselectAllPanes, toggleAllPanes, refreshFocusStats, exitSplitView, tabDragStart, tabDragEnd, showDiskInfo, showSessionDropZones, hideSessionDropZones };
 })();

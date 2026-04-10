@@ -11,12 +11,9 @@ window.Sidebar = (() => {
     document.querySelectorAll('.stab').forEach(tab => {
       tab.addEventListener('click', () => {
         const sidebar = document.getElementById('sidebar');
-        // Auto-expand if collapsed
+        // Auto-expand if collapsed (clicking icon opens sidebar)
         if (sidebar.classList.contains('collapsed')) {
-          sidebar.classList.remove('collapsed');
-          const btn = document.getElementById('btn-sidebar-toggle');
-          if (btn) { btn.textContent = '◀'; btn.title = '사이드바 접기'; }
-          setTimeout(() => window.dispatchEvent(new Event('resize')), 220);
+          App.toggleSidebar();
         }
         document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
@@ -67,7 +64,8 @@ window.Sidebar = (() => {
         html += `<div class="session-item" id="si_${s.id}"
           draggable="true"
           onclick="Sidebar.connectSession('${s.id}')"
-          ondragstart="Sidebar.dragStart(event,'${s.id}')"
+          ondragstart="Sidebar.sessionDragStart(event,'${s.id}')"
+          ondragend="Sidebar.sessionDragEnd(event)"
           ondragover="Sidebar.dragOver(event)"
           ondragleave="Sidebar.dragLeave(event)"
           ondrop="Sidebar.dropSession(event,'${s.id}')">
@@ -218,6 +216,21 @@ window.Sidebar = (() => {
     container.innerHTML = html;
   }
 
+  // ── Session drag → split pane ─────────────────────────────────────
+  function sessionDragStart(e, sessionId) {
+    draggedId = sessionId;
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('session-id', sessionId);
+    e.dataTransfer.setData('text/plain', sessionId);
+    // Show split drop zones on all visible panes
+    setTimeout(() => TermManager.showSessionDropZones(sessionId), 0);
+  }
+
+  function sessionDragEnd() {
+    draggedId = null;
+    TermManager.hideSessionDropZones();
+  }
+
   // ── Drag & Drop session reorder ───────────────────────────────────
   let draggedId = null;
 
@@ -324,5 +337,5 @@ window.Sidebar = (() => {
     return map[ext] || '📄';
   }
 
-  return { render, renderSessions, renderSnippets, openSftp, sftpNavigate, sftpClick, sftpDownload, sftpDelete, dragOver, dragLeave, dropFiles, connectSession, editSession, deleteSession, refreshSessions, toggleGroup, loadSftp, dragStart, dropSession, get sftpSessionId() { return sftpSessionId; } };
+  return { render, renderSessions, renderSnippets, openSftp, sftpNavigate, sftpClick, sftpDownload, sftpDelete, dragOver, dragLeave, dropFiles, connectSession, editSession, deleteSession, refreshSessions, toggleGroup, loadSftp, dragStart, dropSession, sessionDragStart, sessionDragEnd, get sftpSessionId() { return sftpSessionId; } };
 })();
