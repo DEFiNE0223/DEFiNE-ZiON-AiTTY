@@ -6,7 +6,7 @@
   --bg4: #45475a; --fg:  #cdd6f4; --fg2: #a6adc8; --fg3: #6c7086;
   --blue: #89b4fa; --green: #a6e3a1; --red: #f38ba8; --yellow: #f9e2af;
   --peach: #fab387; --mauve: #cba6f7; --teal: #94e2d5; --cyan: #89dceb;
-  --sidebar-w: 260px; --statusbar-h: 24px; --tab-h: 36px;
+  --sidebar-w: 280px; --sidebar-collapsed-w: 52px; --statusbar-h: 24px; --tab-h: 36px;
   --font-ui: 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'Cascadia Code', 'Fira Code', Consolas, monospace;
   --radius: 6px; --transition: 0.15s ease;
@@ -21,7 +21,7 @@ input, select, textarea { font-family: inherit; font-size: 13px; }
 
 /* ── Layout ─────────────────────────────────────────────────────── */
 #app { display: flex; flex: 1; overflow: hidden; }
-#sidebar { width: var(--sidebar-w); min-width: 150px; max-width: 520px; background: var(--bg1); border-right: none; display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+#sidebar { width: var(--sidebar-w); min-width: 150px; max-width: 480px; background: var(--bg1); border-right: none; display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; transition: width 0.2s ease, min-width 0.2s ease, max-width 0.2s ease; }
 #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; min-width: 0; }
 
 /* Sidebar resize handle */
@@ -40,16 +40,54 @@ input, select, textarea { font-family: inherit; font-size: 13px; }
 #ai-panel-resizer:hover, #ai-panel-resizer.dragging { background: var(--blue); }
 
 /* ── Sidebar ─────────────────────────────────────────────────────── */
-#sidebar-header { padding: 10px 12px 8px; background: var(--bg0); border-bottom: 1px solid var(--bg3); display: flex; align-items: center; gap: 6px; }
-#sidebar-header .app-title { font-weight: 700; font-size: 14px; color: var(--blue); flex: 1; }
-#btn-lock { background: none; color: var(--fg3); padding: 4px; border-radius: 4px; }
+#sidebar-header { padding: 10px 12px 8px; background: var(--bg0); border-bottom: 1px solid var(--bg3); display: flex; align-items: center; gap: 6px; overflow: hidden; }
+#sidebar-header .app-title { font-weight: 700; font-size: 14px; color: var(--blue); flex: 1; white-space: nowrap; overflow: hidden; transition: opacity 0.15s, width 0.2s; }
+#btn-lock { background: none; color: var(--fg3); padding: 4px; border-radius: 4px; flex-shrink: 0; }
 #btn-lock:hover { color: var(--yellow); background: var(--bg3); }
+
+/* Sidebar toggle button */
+#btn-sidebar-toggle {
+  background: none; border: none; color: var(--fg3);
+  padding: 4px 6px; border-radius: 4px; font-size: 14px; line-height: 1;
+  cursor: pointer; flex-shrink: 0; transition: var(--transition);
+}
+#btn-sidebar-toggle:hover { color: var(--blue); background: var(--bg3); }
+
+/* Collapsed sidebar */
+#sidebar.collapsed { width: var(--sidebar-collapsed-w) !important; min-width: var(--sidebar-collapsed-w) !important; max-width: var(--sidebar-collapsed-w) !important; overflow: hidden; }
+#sidebar.collapsed + #sidebar-resizer { display: none; }
+#sidebar.collapsed #sidebar-content { display: none !important; }
+#sidebar.collapsed #sidebar-header .app-title,
+#sidebar.collapsed #sidebar-header #btn-change-pw,
+#sidebar.collapsed #sidebar-header #btn-reset-app,
+#sidebar.collapsed #sidebar-header #btn-lock { display: none !important; }
+#sidebar.collapsed #sidebar-header { justify-content: center; padding: 10px 0 8px; border-bottom: none; }
+#sidebar.collapsed #sidebar-tabs {
+  flex-direction: column;
+  border-bottom: none;
+  overflow: hidden;
+}
+#sidebar.collapsed .stab {
+  flex: none;
+  padding: 14px 0;
+  border-bottom: none !important;
+  border-right: 2px solid transparent;
+  border-radius: 0;
+  width: 100%;
+}
+#sidebar.collapsed .stab:hover { background: var(--bg2); border-right: 2px solid var(--fg3); }
+#sidebar.collapsed .stab.active { border-bottom: none !important; border-right: 2px solid var(--blue); background: rgba(137,180,250,0.08); }
+#sidebar.collapsed .stab-label { display: none !important; }
+#sidebar.collapsed .stab-icon { font-size: 22px; }
+/* Tooltip for collapsed tabs — show label on hover via title attr */
+#sidebar.collapsed .stab { position: relative; }
+
 #sidebar-tabs { display: flex; background: var(--bg0); border-bottom: 1px solid var(--bg3); }
-.stab { flex: 1; padding: 8px 4px 6px; text-align: center; color: var(--fg3); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.stab { flex: 1; padding: 10px 4px 8px; text-align: center; color: var(--fg3); cursor: pointer; transition: var(--transition); display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .stab:hover { color: var(--fg); background: var(--bg2); }
 .stab.active { color: var(--blue); border-bottom: 2px solid var(--blue); }
-.stab-icon { font-size: 16px; line-height: 1; }
-.stab-label { font-size: 10px; font-weight: 500; letter-spacing: 0.2px; }
+.stab-icon { font-size: 20px; line-height: 1; }
+.stab-label { font-size: 11px; font-weight: 500; letter-spacing: 0.2px; }
 
 #sidebar-content { flex: 1; overflow-y: auto; }
 

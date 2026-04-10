@@ -145,6 +145,19 @@ window.App = (() => {
     }
   }
 
+  // ── Sidebar collapse toggle ──────────────────────────────────────
+  function toggleSidebar() {
+    const sidebar  = document.getElementById('sidebar');
+    const btn      = document.getElementById('btn-sidebar-toggle');
+    const resizer  = document.getElementById('sidebar-resizer');
+    const collapsed = sidebar.classList.toggle('collapsed');
+    btn.textContent  = collapsed ? '▶' : '◀';
+    btn.title        = collapsed ? '사이드바 펼치기' : '사이드바 접기';
+    if (resizer) resizer.style.display = collapsed ? 'none' : '';
+    // Notify terminals to resize after CSS transition
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 220);
+  }
+
   // ── Force Reset from Login Screen (no password needed) ──────────
   function showForceResetFromLogin(e) {
     if (e) e.preventDefault();
@@ -301,6 +314,7 @@ window.App = (() => {
   }
 
   return { state, api, notify, loadAll, updateStatusBar, init, lock,
+           toggleSidebar,
            showChangePasswordModal, submitChangePassword,
            showResetModal, submitReset,
            showForceResetFromLogin,

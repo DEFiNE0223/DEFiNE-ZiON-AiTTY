@@ -10,10 +10,18 @@ window.Sidebar = (() => {
   function initTabs() {
     document.querySelectorAll('.stab').forEach(tab => {
       tab.addEventListener('click', () => {
+        const sidebar = document.getElementById('sidebar');
+        // Auto-expand if collapsed
+        if (sidebar.classList.contains('collapsed')) {
+          sidebar.classList.remove('collapsed');
+          const btn = document.getElementById('btn-sidebar-toggle');
+          if (btn) { btn.textContent = '◀'; btn.title = '사이드바 접기'; }
+          setTimeout(() => window.dispatchEvent(new Event('resize')), 220);
+        }
         document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         const panel = tab.dataset.panel;
-        document.querySelectorAll('#sessions-panel,#sftp-panel,#snippets-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('#sessions-panel,#sftp-panel,#snippets-panel,#ai-panel').forEach(p => p.classList.remove('active'));
         document.getElementById(panel + '-panel').classList.add('active');
       });
     });
