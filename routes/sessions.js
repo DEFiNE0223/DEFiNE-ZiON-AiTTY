@@ -93,6 +93,62 @@ router.post('/reorder', requireUnlocked, (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Export sessions (re-encrypt credentials with backup password) ────
+router.post('/export', requireUnlocked, (req, res) => {
+  const { backupPassword } = req.body;
+  if (!backupPassword || backupPassword.length < 4)
+    return res.status(400).json({ error: 'Backup password required (min 4 chars)' });
+
+  const master   = getMaster();
+  const sessions = store.readSessions();
+
+  const exported = sessions.map(s => {
+    if (!s.credential) return { ...s };
+    try {
+      const plain = decrypt(s.credential, master);
+      return { ...s, credential: encrypt(plain, backupPassword) };
+    } catch { return { ...s, credential: null }; }
+  });
+
+  res.json({
+    version:    '1.1',
+    app:        'AiTTY',
+    exportedAt: new Date().toISOString(),
+    sessions:   exported,
+  });
+});
+
+// ── Import sessions (decrypt with backup password, re-encrypt with master) ──
+router.post('/import', requireUnlocked, (req, res) => {
+  const { backupPassword, sessions: incoming, mode = 'merge' } = req.body;
+  if (!backupPassword)       return res.status(400).json({ error: 'Backup password required' });
+  if (!Array.isArray(incoming)) return res.status(400).json({ error: 'Invalid backup data' });
+
+  const master   = getMaster();
+  const existing = store.readSessions();
+
+  // Decrypt with backup password, re-encrypt with master
+  const imported = incoming.map(s => {
+    if (!s.credential) return s;
+    try {
+      const plain = decrypt(s.credential, backupPassword);
+      return { ...s, credential: encrypt(plain, master) };
+    } catch { return { ...s, credential: null }; }
+  });
+
+  let result;
+  if (mode === 'replace') {
+    result = imported;
+  } else {
+    // merge — skip sessions with duplicate id
+    const existingIds = new Set(existing.map(s => s.id));
+    result = [...existing, ...imported.filter(s => !existingIds.has(s.id))];
+  }
+
+  store.writeSessions(result);
+  res.json({ ok: true, imported: imported.length, total: result.length });
+});
+
 // Session log save (append mode, keeps last 10MB per session)
 const fs   = require('fs');
 const path = require('path');

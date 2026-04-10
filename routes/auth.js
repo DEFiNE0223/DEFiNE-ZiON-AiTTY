@@ -97,8 +97,7 @@ router.post('/change-password', (req, res) => {
   }
 });
 
-// ── Reset App (full wipe) ─────────────────────────────────────────────
-// Deletes all data — sessions, API keys, config. Cannot be undone.
+// ── Reset App (full wipe, requires current password) ─────────────────
 router.post('/reset', (req, res) => {
   const { password } = req.body;
   const cfg = store.readConfig();
@@ -116,6 +115,17 @@ router.post('/reset', (req, res) => {
   store.writeConfig({});
   masterPassword = null;
 
+  res.json({ ok: true });
+});
+
+// ── Force Reset (no password — wipes everything from login screen) ────
+// Used when user forgot the master password. No auth check — destroys all data.
+router.post('/force-reset', (req, res) => {
+  store.writeSessions([]);
+  store.writeSnippets([]);
+  store.writeApiKeys({});
+  store.writeConfig({});
+  masterPassword = null;
   res.json({ ok: true });
 });
 

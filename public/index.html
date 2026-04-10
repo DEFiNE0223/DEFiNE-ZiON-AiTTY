@@ -19,6 +19,14 @@
     <div id="auth-error"></div>
     <br>
     <button class="btn-primary" id="auth-btn" style="width:100%;margin-top:8px;padding:10px">Unlock</button>
+    <div id="auth-forgot" style="margin-top:14px;text-align:center">
+      <span style="font-size:11px;color:var(--fg3)">Forgot password? </span>
+      <a href="#" onclick="App.showForceResetFromLogin(event)"
+         style="font-size:11px;color:var(--red);opacity:0.7;text-decoration:none"
+         onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+        ⚠️ Factory Reset (erase all data)
+      </a>
+    </div>
   </div>
 </div>
 
@@ -321,6 +329,57 @@
     <div class="modal-footer">
       <button class="btn-cancel" onclick="document.getElementById('modal-reset').classList.add('hidden')">Cancel</button>
       <button class="btn-primary" style="background:var(--red)" onclick="App.submitReset()">Reset Everything</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Export Sessions ────────────────────────────────────── -->
+<div id="modal-export" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:400px">
+    <h2>📥 Export Sessions</h2>
+    <p style="color:var(--fg2);font-size:13px;line-height:1.6;margin-bottom:12px">
+      All session credentials will be encrypted with a <strong>backup password</strong> you set below.<br>
+      Keep the backup password safe — you'll need it to import.
+    </p>
+    <div class="form-group">
+      <label>Backup Password</label>
+      <input type="password" id="inp-export-pw" placeholder="Set a backup password" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label>Confirm Backup Password</label>
+      <input type="password" id="inp-export-pw2" placeholder="Repeat backup password" autocomplete="new-password">
+    </div>
+    <p id="export-error" style="color:var(--red);font-size:12px;margin:4px 0 0"></p>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="document.getElementById('modal-export').classList.add('hidden')">Cancel</button>
+      <button class="btn-primary" onclick="App.submitExport()">📥 Download Backup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Import Sessions ────────────────────────────────────── -->
+<div id="modal-import" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:420px">
+    <h2>📤 Import Sessions</h2>
+    <div class="form-group">
+      <label>Backup File (.json)</label>
+      <input type="file" id="inp-import-file" accept=".json" style="color:var(--fg2);font-size:12px">
+    </div>
+    <div class="form-group">
+      <label>Backup Password</label>
+      <input type="password" id="inp-import-pw" placeholder="Password used when exporting" autocomplete="current-password">
+    </div>
+    <div class="form-group">
+      <label>Import Mode</label>
+      <select id="sel-import-mode" style="width:100%;padding:6px 8px;background:var(--bg2);color:var(--fg);border:1px solid var(--border);border-radius:4px;font-size:13px">
+        <option value="merge">Merge (keep existing, add new)</option>
+        <option value="replace">Replace (overwrite all sessions)</option>
+      </select>
+    </div>
+    <p id="import-error" style="color:var(--red);font-size:12px;margin:4px 0 0"></p>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="document.getElementById('modal-import').classList.add('hidden')">Cancel</button>
+      <button class="btn-primary" onclick="App.submitImport()">📤 Import</button>
     </div>
   </div>
 </div>
