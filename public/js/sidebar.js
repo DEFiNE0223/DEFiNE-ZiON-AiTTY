@@ -6,23 +6,23 @@ window.Sidebar = (() => {
   let sftpSessionId = null;
   let sftpPath = '/';
 
-  // ── Tab switching ─────────────────────────────────────────────────
-  function initTabs() {
-    document.querySelectorAll('.stab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const sidebar = document.getElementById('sidebar');
-        // Auto-expand if collapsed (clicking icon opens sidebar)
-        if (sidebar.classList.contains('collapsed')) {
-          App.toggleSidebar();
-        }
-        document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const panel = tab.dataset.panel;
-        document.querySelectorAll('#sessions-panel,#sftp-panel,#snippets-panel,#ai-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById(panel + '-panel').classList.add('active');
-      });
-    });
+  // ── Tab switching (called via onclick on each stab) ───────────────
+  function switchTab(tabEl) {
+    const sidebar = document.getElementById('sidebar');
+    // Auto-expand sidebar if collapsed
+    if (sidebar.classList.contains('collapsed')) {
+      App.toggleSidebar();
+    }
+    document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+    tabEl.classList.add('active');
+    const panel = tabEl.dataset.panel;
+    document.querySelectorAll('#sessions-panel,#sftp-panel,#snippets-panel,#ai-panel').forEach(p => p.classList.remove('active'));
+    const panelEl = document.getElementById(panel + '-panel');
+    if (panelEl) panelEl.classList.add('active');
   }
+
+  // ── Legacy initTabs (no-op, kept for compatibility) ───────────────
+  function initTabs() {}
 
   // ── Session Tree ─────────────────────────────────────────────────
   function renderSessions() {
@@ -39,9 +39,9 @@ window.Sidebar = (() => {
     let html = `<div class="panel-toolbar">
       <button class="btn-sm primary" onclick="Modals.showNewSession()">＋ New Session</button>
       <button class="btn-sm" onclick="Sidebar.refreshSessions()" data-tip="Refresh">↻</button>
-      <button class="btn-sm btn-toggle-all" onclick="TermManager.toggleAllPanes()" data-tip="전체 선택/해제">☑ All</button>
-      <button class="btn-sm" onclick="App.showExportModal()" data-tip="세션 백업 (Export)">📥</button>
-      <button class="btn-sm" onclick="App.showImportModal()" data-tip="세션 복구 (Import)">📤</button>
+      <button class="btn-sm btn-toggle-all" onclick="TermManager.toggleAllPanes()" data-tip="Select / Deselect All">☑ All</button>
+      <button class="btn-sm" onclick="App.showExportModal()" data-tip="Export Sessions">📥</button>
+      <button class="btn-sm" onclick="App.showImportModal()" data-tip="Import Sessions">📤</button>
     </div>`;
 
     if (sessions.length === 0) {
@@ -337,5 +337,5 @@ window.Sidebar = (() => {
     return map[ext] || '📄';
   }
 
-  return { render, renderSessions, renderSnippets, openSftp, sftpNavigate, sftpClick, sftpDownload, sftpDelete, dragOver, dragLeave, dropFiles, connectSession, editSession, deleteSession, refreshSessions, toggleGroup, loadSftp, dragStart, dropSession, sessionDragStart, sessionDragEnd, get sftpSessionId() { return sftpSessionId; } };
+  return { render, renderSessions, renderSnippets, switchTab, openSftp, sftpNavigate, sftpClick, sftpDownload, sftpDelete, dragOver, dragLeave, dropFiles, connectSession, editSession, deleteSession, refreshSessions, toggleGroup, loadSftp, dragStart, dropSession, sessionDragStart, sessionDragEnd, get sftpSessionId() { return sftpSessionId; } };
 })();

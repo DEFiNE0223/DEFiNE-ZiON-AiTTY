@@ -149,11 +149,11 @@ window.TermManager = (() => {
       overlay.id = 'sdo_' + paneId;
 
       const zones = [
-        { name: 'top',    label: '▲ 위 분할',   icon: '▲' },
-        { name: 'bottom', label: '▼ 아래 분할', icon: '▼' },
-        { name: 'left',   label: '◀ 왼쪽 분할', icon: '◀' },
-        { name: 'right',  label: '▶ 오른쪽 분할',icon: '▶' },
-        { name: 'center', label: '＋ 새 탭',    icon: '＋' },
+        { name: 'top',    label: '▲ Top',   icon: '▲' },
+        { name: 'bottom', label: '▼ Bottom', icon: '▼' },
+        { name: 'left',   label: '◀ Left', icon: '◀' },
+        { name: 'right',  label: '▶ Right',icon: '▶' },
+        { name: 'center', label: '＋ New Tab',    icon: '＋' },
       ];
       zones.forEach(({ name, label, icon }) => {
         const z = document.createElement('div');
@@ -235,8 +235,8 @@ window.TermManager = (() => {
     const preset = App.state.presets.find(p => p.id === session.osType) || {};
     PresetPanel.setPreset(newId, preset);
 
-    const labels = { top:'위', bottom:'아래', left:'왼쪽', right:'오른쪽' };
-    App.notify(`${session.name} → ${labels[zone]} 분할`, 'success');
+    const labels = { top:'Top', bottom:'Bottom', left:'Left', right:'Right' };
+    App.notify(`${session.name} → ${labels[zone]} split`, 'success');
   }
 
   // ── Tab drag-to-split ─────────────────────────────────────────────
@@ -647,7 +647,7 @@ window.TermManager = (() => {
         <span class="tab-close" onclick="TermManager.closeTab(event,'${tab.id}')">×</span>
       </div>`;
     }
-    html += `<button id="btn-new-tab" onclick="Modals.showNewSession()" data-tip="새 세션 연결">＋</button>`;
+    html += `<button id="btn-new-tab" onclick="Modals.showNewSession()" data-tip="New Session">＋</button>`;
     bar.innerHTML = html;
   }
 
@@ -857,7 +857,7 @@ window.TermManager = (() => {
     const allSel   = total > 0 && selected >= total;
     document.querySelectorAll('.btn-toggle-all').forEach(btn => {
       btn.textContent = allSel ? '☐ All' : '☑ All';
-      btn.title       = allSel ? '전체 해제' : '전체 선택';
+      btn.title       = allSel ? 'Deselect All' : 'Select All';
     });
   }
 

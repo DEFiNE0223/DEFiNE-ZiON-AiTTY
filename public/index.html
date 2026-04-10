@@ -35,17 +35,17 @@
   <!-- Sidebar -->
   <div id="sidebar">
     <div id="sidebar-header">
-      <button id="btn-sidebar-toggle" title="사이드바 접기/펼치기" onclick="App.toggleSidebar()">◀</button>
+      <button id="btn-sidebar-toggle" title="Toggle Sidebar" onclick="App.toggleSidebar()">◀</button>
       <span class="app-title">⚡ AiTTY</span>
       <button id="btn-change-pw" title="Change Master Password" onclick="App.showChangePasswordModal()" style="font-size:13px;background:none;border:none;cursor:pointer;color:var(--fg2);padding:4px 6px;border-radius:4px" onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--fg2)'">🔑</button>
       <button id="btn-reset-app" title="Reset App (wipe all data)" onclick="App.showResetModal()" style="font-size:13px;background:none;border:none;cursor:pointer;color:var(--fg3);padding:4px 6px;border-radius:4px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--fg3)'">⚠️</button>
       <button id="btn-lock" title="Lock">🔒</button>
     </div>
     <div id="sidebar-tabs">
-      <div class="stab active" data-panel="sessions" title="Sessions"><span class="stab-icon">💻</span><span class="stab-label">Sessions</span></div>
-      <div class="stab" data-panel="sftp" title="SFTP"><span class="stab-icon">📁</span><span class="stab-label">SFTP</span></div>
-      <div class="stab" data-panel="snippets" title="Snippets"><span class="stab-icon">📜</span><span class="stab-label">Snippets</span></div>
-      <div class="stab" data-panel="ai" title="AI"><span class="stab-icon">🤖</span><span class="stab-label">AI</span></div>
+      <div class="stab active" data-panel="sessions" title="Sessions" onclick="Sidebar.switchTab(this)"><span class="stab-icon">💻</span><span class="stab-label">Sessions</span></div>
+      <div class="stab" data-panel="sftp" title="SFTP" onclick="Sidebar.switchTab(this)"><span class="stab-icon">📁</span><span class="stab-label">SFTP</span></div>
+      <div class="stab" data-panel="snippets" title="Snippets" onclick="Sidebar.switchTab(this)"><span class="stab-icon">📜</span><span class="stab-label">Snippets</span></div>
+      <div class="stab" data-panel="ai" title="AI" onclick="Sidebar.switchTab(this)"><span class="stab-icon">🤖</span><span class="stab-label">AI</span></div>
     </div>
     <div id="sidebar-content">
       <div id="sessions-panel" class="active"></div>
@@ -106,10 +106,10 @@
       <span class="fib-sep">│</span>
       <span id="fib-cpu">CPU —</span>
       <span id="fib-mem">MEM —</span>
-      <span id="fib-disk" onclick="TermManager.showDiskInfo()" style="display:none;cursor:pointer" data-tip="클릭: 전체 디스크 정보">Disk —</span>
+      <span id="fib-disk" onclick="TermManager.showDiskInfo()" style="display:none;cursor:pointer" data-tip="Click for full disk info">Disk —</span>
       <span class="fib-sep">│</span>
       <span id="fib-up">—</span>
-      <button id="fib-refresh" onclick="TermManager.refreshFocusStats()" data-tip="Stats 새로고침">↺</button>
+      <button id="fib-refresh" onclick="TermManager.refreshFocusStats()" data-tip="Refresh Stats">↺</button>
     </div>
 
     <!-- Pane area -->
@@ -172,10 +172,10 @@
     <!-- Multi-exec bar -->
     <div id="multi-exec-bar">
       <span id="multi-exec-label" style="font-size:11px;color:var(--yellow)">0 selected</span>
-      <button class="btn-sm btn-toggle-all" onclick="TermManager.toggleAllPanes()" data-tip="전체 선택/해제">☑ All</button>
+      <button class="btn-sm btn-toggle-all" onclick="TermManager.toggleAllPanes()" data-tip="Select / Deselect All">☑ All</button>
       <input type="text" id="multi-exec-input" placeholder="Execute command on all selected servers (Enter)">
       <button id="btn-multi-exec" class="btn-sm primary">▶ Run</button>
-      <button class="btn-sm" onclick="TermManager.deselectAllPanes()" data-tip="전체 해제">☐ 해제</button>
+      <button class="btn-sm" onclick="TermManager.deselectAllPanes()" data-tip="Deselect All">☐ Deselect</button>
     </div>
   </div>
 </div>

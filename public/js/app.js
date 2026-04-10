@@ -152,7 +152,7 @@ window.App = (() => {
     const resizer  = document.getElementById('sidebar-resizer');
     const collapsed = sidebar.classList.toggle('collapsed');
     btn.textContent  = collapsed ? '▶' : '◀';
-    btn.title        = collapsed ? '사이드바 펼치기' : '사이드바 접기';
+    btn.title        = collapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
     if (resizer) resizer.style.display = collapsed ? 'none' : '';
     // Notify terminals to resize after CSS transition
     setTimeout(() => window.dispatchEvent(new Event('resize')), 220);
