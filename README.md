@@ -232,10 +232,10 @@ Then open **http://127.0.0.1:7654** in your browser.
 │  Settings Panel      │  Session & Snippet store         │
 │                      │  AI API proxy (Claude/GPT/etc.)  │
 └──────────────────────┴──────────────────────────────────┘
-                             │
-              ┌──────────────┼──────────────┐
-              ▼              ▼              ▼
-       Anthropic API   OpenAI API    Google Gemini API
+                           │
+            ┌──────────────┼──────────────┐
+            ▼              ▼              ▼
+     Anthropic API   OpenAI API    Google Gemini API
 ```
 
 ---
