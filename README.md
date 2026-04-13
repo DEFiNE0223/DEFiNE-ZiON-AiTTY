@@ -23,521 +23,374 @@
 
 ---
 
-## Overview
+## 🚀 Quick Start (3 Steps)
 
-Most web-based SSH tools focus on basic terminal access, leaving a gap between real-time multi-server visibility and practical AI integration.
+### 1. Install Requirements
 
-**DEFiNE-ZiON-AiTTY** combines multi-server SSH management, live resource monitoring, and an AI agent loop — supporting multiple models — into a single locally-run web terminal. All data stays on your machine, and AI-suggested commands never execute without explicit user approval.
+**Windows:**
+- [Download Node.js LTS](https://nodejs.org) — install & restart PowerShell
+- [Download Git](https://git-scm.com/download/win) — install & restart PowerShell
 
----
-
-## What's New in v1.2.0
-
-| Feature | Description |
-|---------|-------------|
-| **Collapsible Sidebar** | Toggle to icon-rail mode — click any icon to auto-expand |
-| **Session Drag-to-Split** | Drag a session from the list onto any pane — drop on L/R/T/B edge to split, center to open in new tab |
-| **Backup & Restore** | Export sessions as AES-256-GCM encrypted JSON with a backup passphrase; import on any machine |
-| **Factory Reset (no password)** | Wipe all data from the login screen — for forgotten master password |
-| **About Modal** | Click the version label (bottom-right) for version info, release notes, and links |
-
----
-
-## Features (v1.0.0)
-
-### Terminal & Session Management
-
-| Feature | Description |
-|---------|-------------|
-| **Multi-tab Interface** | Each session opens in its own dedicated full-size tab |
-| **Split-screen Panes** | Split any tab horizontally or vertically via pane header buttons |
-| **Tab Drag-to-Split** | Drag a tab to the left / right / top / bottom edge of the pane area — instant split view with resize handle |
-| **Pane Drag-to-Swap** | Drag pane headers to reorder within a split layout |
-| **Split View Splitter** | Drag the divider to resize split panes; close button to exit split mode |
-
-### Focus Info Bar
-
-Real-time live stats for the currently focused server pane — always visible at the top.
-
-| Stat | Detail |
-|------|--------|
-| **Hostname** | Remote server hostname |
-| **IP Address(es)** | Primary IP shown; `+N` badge for extras (hover for full list) |
-| **CPU %** | Live usage via `/proc/stat` — color coded green / yellow / red |
-| **MEM %** | Used / Total MB via `free -m` — color coded |
-| **Uptime** | Human-readable via `uptime -p` |
-| **Disk %** | Root partition usage — click to open full `df -h` popup (container/virtual filesystems filtered) |
-
-> Stats auto-refresh every **30 seconds** per focused pane.
-
-### Session Sidebar
-
-- Saved sessions with quick connect
-- Preset OS command panels (Linux, Ubuntu, CentOS, Docker, etc.)
-- Select All / Deselect All toggle — select or deselect all panes in one click
-- **Multi-Exec Bar** — type one command, broadcast to all selected servers simultaneously
-
-### AI Assistant
-
-- Built-in AI chat panel per pane
-- **Claude Code (Local)** — use your existing Claude subscription, no API key needed
-- **API mode** — Claude / GPT-4o / Gemini / Groq via API key
-- **Agent Mode** — AI suggests command → executes in terminal → captures output → feeds back to AI (loop)
-- Terminal output context bridge — AI sees what you see
-- All API keys encrypted with AES-256-GCM — never leave your machine
-
-### Security & Settings
-
-- **Change Master Password** — re-encrypts all stored data with the new password, zero data loss
-- **Reset App** — full factory reset (requires password confirmation)
-
-### SFTP File Manager
-
-- GUI file browser over SSH
-- Upload / download files with progress
-- Inline directory navigation
-
-### Security
-
-- **AES-256-GCM Vault** — session credentials encrypted with master password (PBKDF2 key derivation)
-- **Session Lock** — lock the app; credentials wiped from memory until re-authenticated
-- **Local-First** — everything runs on `127.0.0.1:7654`; no cloud, no telemetry
-- **Approval-Gate** — AI-suggested commands require your confirmation before execution
-
-### Launcher
-
-- **Windows** — system tray app (`tray.ps1`), `launch.bat` for quick start
-- **macOS / Linux** — `launch.sh` / `stop.sh` shell scripts
-- Auto-installs npm dependencies on first run
-
----
-
-## AI Model Support
-
-### Option A — Claude Code Local (No API Key)
-
-Use your existing **Claude Pro / Max subscription** — no separate API key needed.
-
-| Step | Command |
-|------|---------|
-| 1. Install Claude Code CLI | `npm install -g @anthropic-ai/claude-code` |
-| 2. Login | `claude login` (browser opens → sign in with Anthropic account) |
-| 3. Done | AiTTY auto-detects CLI → `💻 Claude Code (Local)` shows ✓ Ready |
-
-> **Requires**: Claude Pro ($20/mo) or Max plan. Free tier has limited access.
->
-> **Already using Claude Code** for development? CLI is already installed — just open AiTTY and it works immediately.
-
-**Windows / macOS:**
-```powershell
-npm install -g @anthropic-ai/claude-code
-claude login
-```
-
-**How it works:**
-```
-AiTTY → runs claude CLI locally → uses your login session → Anthropic servers
-```
-No API key stored. Uses your subscription quota. Model selectable (Sonnet / Opus / Haiku).
-
----
-
-### Option B — API Key (Pay-per-token)
-
-| Provider | Best For |
-|----------|----------|
-| **Claude Opus / Sonnet** | Deep code analysis, complex logic design |
-| **Gemini 2.0 Flash** | Massive server log analysis, huge context windows |
-| **GPT-4o** | Fast, accurate general-purpose command generation |
-| **Groq (LLaMA)** | Ultra-low latency for real-time agentic tasks |
-
-Register API keys in the AI tab of the sidebar — encrypted with AES-256-GCM, never leave your machine.
-
----
-
-## Comparison
-
-| Feature | Claude Code CLI | Traditional Web-SSH | **DEFiNE-ZiON-AiTTY** |
-|---------|:-:|:-:|:-:|
-| Model Freedom | Claude Only | - | Claude / GPT / Gemini / Groq |
-| Live Server Stats | - | - | CPU / MEM / Disk / IP / Uptime |
-| Split Terminal | - | Partial | H / V + Drag-to-Split |
-| Multi-Server Exec | - | - | Broadcast to all selected |
-| AI Agent Loop | - | - | Execute → Capture → Analyze |
-| Security Layer | Local Env | Plain Text | AES-256-GCM Master Vault |
-| SFTP Browser | - | Partial | Full GUI |
-| Cross-Platform | CLI | Browser | Win / Mac / Linux |
-
----
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    DEFiNE-ZiON-AiTTY                        │
-├───────────────────────────┬─────────────────────────────────┤
-│        Frontend           │           Backend               │
-│  xterm.js v5 (terminal)   │  Node.js + Express              │
-│  Multi-tab + Split UI     │  WebSocket (SSH bridge)         │
-│  Focus Info Bar           │  ssh2 (SSH/SFTP client)         │
-│  Tab Drag-to-Split        │  AES-256-GCM crypto             │
-│  AI Chat Panel            │  Session & Snippet store        │
-│  SFTP Browser             │  AI API proxy (Claude/GPT/…)    │
-│  Snippet / Preset Panel   │                                 │
-└───────────────────────────┴─────────────────────────────────┘
-                                      │
-              ┌───────────────────────┼────────────────────────┐
-              ▼                       ▼                        ▼
-       Anthropic API            OpenAI API           Google Gemini API
-     (Claude models)          (GPT models)           (Gemini models)
-                                      │
-                                      ▼
-                               Groq API (LLaMA)
-```
-
----
-
-## Roadmap
-
-```
-Phase 1: Genesis — COMPLETE
-  [x] High-performance Web-SSH bridge (xterm.js + ssh2)
-  [x] Catppuccin dark theme UI
-  [x] Session & Snippet management
-  [x] Split-view terminal (H / V)
-  [x] SFTP browser with upload / download
-  [x] Cross-platform launcher (Windows / macOS / Linux)
-
-Phase 2: Fortress — COMPLETE
-  [x] AES-256-GCM encrypted session vault
-  [x] Master Password lock / unlock (PBKDF2)
-  [x] Multi-Model AI panel (Claude / GPT / Gemini / Groq)
-  [x] AI Agent Mode (Execute → Capture → Analyze loop)
-  [x] Terminal context bridge to AI
-
-Phase 3: Command Center — COMPLETE  (v1.0.0)
-  [x] Focus Info Bar — hostname, IP(s), CPU%, MEM%, Uptime, Disk%
-  [x] Multi-IP display — primary + +N badge with full list on hover
-  [x] Disk popup — full df -h output, container filesystems filtered
-  [x] Session → always opens as new full-size tab
-  [x] Tab drag-to-split — drop on edge to create H/V split view
-  [x] Resizable split splitter + close button
-  [x] Select All / Deselect All pane toggle
-  [x] Pane drag-to-swap within split layout
-
-Phase 3.5: Local AI & Security — COMPLETE  (v1.1.0)
-  [x] Claude Code (Local) integration — use Claude subscription, no API key
-  [x] Model selection for Claude Code (Sonnet / Opus / Haiku)
-  [x] SSH assistant system prompt — AI gives commands, never fakes output
-  [x] Change Master Password — re-encrypts all data with zero loss
-  [x] Reset App — full factory reset with password confirmation
-  [x] launch.sh auto-creates data/ directory on first run
-  [x] launch.sh / stop.sh executable bit set in git repo (no chmod needed)
-
-Phase 4: Power UX — COMPLETE  (v1.2.0)
-  [x] Collapsible sidebar — icon-rail mode with smooth animation
-  [x] Click collapsed tab to auto-expand sidebar
-  [x] Auto-expand sidebar when last terminal tab is closed
-  [x] Session drag-to-split — drag session from list, drop on L/R/T/B/center of any pane
-  [x] Session backup export — AES-256-GCM encrypted JSON with backup passphrase
-  [x] Session import / restore — decrypt backup, re-encrypt with master password (merge or replace)
-  [x] Factory reset from login screen — wipe all data without master password
-  [x] About modal — version info, release notes, author, links (click version in status bar)
-
-Phase 5: Intelligence — UPCOMING
-  [ ] AI-native file manager (drag & drop with AI rename/organize)
-  [ ] Kubernetes & Docker status dashboard
-  [ ] AI session history recovery & log analyzer
-  [ ] Streaming AI responses (real-time token output)
-  [ ] Smart alert system (CPU/MEM/Disk threshold notifications)
-
-Phase 5: Expansion — PLANNED
-  [ ] macOS Homebrew formula & Windows MSI installer
-  [ ] Custom AI prompt preset marketplace
-  [ ] Multi-user collaboration mode (shared sessions)
-  [ ] Mobile-responsive terminal view
-  [ ] Plugin/extension system
-```
-
----
-
-## Requirements
-
-| Requirement | Version | Notes |
-|-------------|---------|-------|
-| [Node.js](https://nodejs.org) | 18 or higher | Runtime — required |
-| [Git](https://git-scm.com) | Any | For cloning and updating — required |
-| SSH server | Any | The remote server you want to connect to |
-| AI API Key | — | Optional — only needed for AI Agent features |
-
-> All other dependencies install automatically on first launch.
-
----
-
-## Installing Git (Windows)
-
-Git is required to clone the repository and pull updates.
-
-**Option A — Git for Windows (recommended)**
-1. Download from **https://git-scm.com/download/win**
-2. Run the installer — keep all defaults
-3. This installs:
-   - `git` command in **PowerShell** and **CMD**
-   - **Git Bash** (a Unix-style terminal, useful for running shell scripts)
-4. Verify in PowerShell:
-   ```powershell
-   git --version
-   ```
-
-**Option B — winget**
-```powershell
-winget install Git.Git
-# Restart PowerShell after install
-```
-
-> macOS/Linux already have git available via Homebrew (`brew install git`) or the system package manager.
-
----
-
-## Git Command Guide (PowerShell)
-
-Common commands for managing and updating AiTTY on Windows.
-
-<details>
-<summary><b>Get the latest update</b></summary>
-
-```powershell
-cd C:\path\to\DEFiNE-ZiON-AiTTY
-
-git pull origin main
-```
-
-This downloads and applies the latest changes from GitHub. Run this whenever a new version is released.
-
-</details>
-
-<details>
-<summary><b>Check current version / what changed</b></summary>
-
-```powershell
-# Show recent commit history
-git log --oneline -10
-
-# Show what files changed in the last update
-git diff HEAD~1 --name-only
-
-# Show your current branch and status
-git status
-```
-
-</details>
-
-<details>
-<summary><b>Switch to a specific release version</b></summary>
-
-```powershell
-# List all available release tags
-git tag
-
-# Switch to a specific version (e.g. v1.0.0)
-git checkout v1.0.0
-
-# Go back to the latest
-git checkout main
-git pull origin main
-```
-
-</details>
-
-<details>
-<summary><b>You edited a file and pull is blocked</b></summary>
-
-If you changed a config file and `git pull` complains:
-
-```powershell
-# Option A: Stash your changes temporarily, pull, then restore
-git stash
-git pull origin main
-git stash pop
-
-# Option B: Discard your local changes entirely and force-update
-git fetch origin
-git reset --hard origin/main
-```
-
-> `reset --hard` will erase any local file edits. Use with caution.
-
-</details>
-
-<details>
-<summary><b>Clone fresh on a new machine</b></summary>
-
-```powershell
-git clone https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY.git
-cd DEFiNE-ZiON-AiTTY
-npm install
-node server.js
-```
-
-</details>
-
----
-
-## Installing Node.js
-
-<details>
-<summary><b>Windows</b></summary>
-
-1. Go to **https://nodejs.org** and download the **LTS** version (`.msi` installer)
-2. Run the installer — click Next through all steps, keep all defaults
-3. Open **Command Prompt** and verify:
-   ```
-   node -v
-   ```
-   You should see something like `v22.x.x`
-
-> Alternative: Install via winget
-> ```
-> winget install OpenJS.NodeJS.LTS
-> ```
-
-</details>
-
-<details>
-<summary><b>macOS</b></summary>
-
-**Option A — Official installer**
-1. Go to **https://nodejs.org** and download the **LTS** `.pkg` file
-2. Run the installer and follow the steps
-3. Verify in Terminal:
-   ```bash
-   node -v
-   ```
-
-**Option B — Homebrew**
+**macOS:**
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew install node
+brew install node git
 ```
 
-</details>
-
-<details>
-<summary><b>Linux (Ubuntu / Debian)</b></summary>
-
+**Linux (Ubuntu/Debian):**
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-sudo apt-get install -y nodejs
-node -v
+sudo apt-get install -y nodejs git
 ```
 
-</details>
-
-<details>
-<summary><b>Linux (RHEL / Fedora / CentOS)</b></summary>
-
-```bash
-curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
-sudo dnf install -y nodejs
-node -v
-```
-
-</details>
-
----
-
-## Quick Start
-
-### Step 1 — Clone
+### 2. Clone & Launch
 
 ```bash
 git clone https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY.git
 cd DEFiNE-ZiON-AiTTY
 ```
 
-> No git? Click **Code → Download ZIP** on GitHub, then extract.
+**Windows:** Double-click `launch.bat`
 
----
-
-### Step 2 — Launch
-
-**Windows** — double-click `launch.bat`
-> First run installs dependencies automatically. Check the system tray for the icon.
-
-**macOS / Linux**
+**macOS / Linux:**
 ```bash
 ./launch.sh
 ```
 
-**Any OS (terminal)**
+**Any OS (manual):**
 ```bash
-npm install   # first time only
+npm install
 node server.js
 ```
 
 Then open **http://127.0.0.1:7654** in your browser.
 
----
+### 3. First Setup
 
-### Step 3 — First Setup
+1. **Set Master Password** — encrypts all your data
+2. **Add SSH Session** — click `+ Session` → host, port, username, password/key
+3. **Connect** — click your session → opens full-size terminal tab
 
-1. **Set a Master Password** — encrypts all your data locally.
-2. **Add an SSH Session** — click `+ Session` in the sidebar → enter host, port, username, and password or private key.
-3. **Connect** — click your session. It opens as a full-size tab.
-
----
-
-### Step 4 — Split View
-
-- **H / V split**: click the split buttons in the pane header
-- **Drag-to-split**: drag any tab and drop it on the **left / right / top / bottom** edge of the terminal area
-- **Resize**: drag the splitter divider between panes
-- **Exit split**: click the close button on the splitter
+✅ **Done!** You're ready to use AiTTY.
 
 ---
 
-### Step 5 — Enable AI (Optional)
+## 📖 Complete User Guide
 
-**Option A — Claude Code Local (recommended, no API key)**
+### 🖥️ Terminal & Session Management
 
-```powershell
-# Windows / macOS
+**Opening Sessions:**
+- Click `+ Session` in sidebar → add SSH connection
+- Click session name → opens as full-size tab
+- Click session's `📁` button → open SFTP file browser
+- Click `✏️` to edit, `🗑️` to delete
+
+**Split View (Side-by-Side):**
+- **Method 1:** Click `H` (horizontal) or `V` (vertical) in pane header
+- **Method 2:** Drag any session from sidebar → drop on left/right/top/bottom edge of terminal
+- Click splitter divider → resize panes
+- Click ✕ to exit split mode
+
+**Multi-Server Broadcast:**
+- Click checkboxes on sessions to select multiple
+- Click `Select All` / `Deselect All` to toggle all at once
+- Type command in "Multi-Exec Bar" → runs on all selected servers simultaneously
+
+**Tips:**
+- **Focus Info Bar (top):** Shows hostname, IPs, CPU%, MEM%, Uptime, Disk% for focused pane
+- **Click disk %** → full `df -h` output
+- **Hover IP badge** → see all IP addresses
+- Stats refresh every 30 seconds
+
+---
+
+### 🎯 Focus & Multi-Server Commands
+
+**Focus Info Bar** shows live stats for the currently active terminal:
+- **Hostname** + **Primary IP** (hover for all IPs)
+- **CPU %** — color coded (green/yellow/red)
+- **MEM %** — used/total in MB
+- **Uptime** — human-readable (`uptime -p`)
+- **Disk %** — root partition, click for full breakdown
+
+**Multi-Exec Broadcast:**
+```
+1. Select sessions (checkbox)
+2. Type command in "Multi-Exec Bar"
+3. Hit Enter
+4. Command runs on all selected servers
+```
+
+---
+
+### 📁 SFTP File Manager
+
+**Browse & Manage Files over SSH:**
+- Click `📁` on any session → open file browser
+- Navigate folders by clicking
+- **Upload:** Drag files into drop zone or use file input
+- **Download:** Click `⬇️` next to file
+- **Delete:** Click `🗑️` on file/folder
+- **Back:** Click `..` to go up one level
+
+**Supported:**
+- Large files (tested up to 500 MB)
+- Recursive folder operations
+- Filename auto-escape (safe for special chars)
+
+---
+
+### 🤖 AI Assistant Panel
+
+**Ask AI About Your Servers:**
+- Open any terminal → click `🤖` button (bottom right)
+- AI chat panel appears
+- Ask anything: `"Check disk usage"`, `"Why is CPU high?"`, `"Show k8s pod status"`
+
+**AI Models:**
+
+| Model | Setup | Cost | Best For |
+|-------|-------|------|----------|
+| **Claude Code (Local)** | `npm install -g @anthropic-ai/claude-code` then `claude login` | Free (uses subscription) | No API key, local |
+| **Claude API** | Paste API key in AI tab | Pay-per-token | Deep analysis |
+| **GPT-4o** | Paste OpenAI key | Pay-per-token | Fast, general-purpose |
+| **Gemini** | Paste Google key | Pay-per-token | Huge context windows |
+| **Groq (LLaMA)** | Paste Groq key | Pay-per-token | Ultra-low latency |
+
+**Agent Mode:**
+- Enable `🔄 Agent` toggle
+- AI suggests command → you review → confirm to execute
+- AI sees the output → suggests next step
+- Loop until task complete
+
+---
+
+### 💾 Snippets & Preset Commands
+
+**Save Frequently-Used Commands:**
+- Click `Snippets` tab in sidebar
+- Click `+ Snippet` → name & command
+- Click snippet to insert into terminal
+
+**Preset Command Panels:**
+- Pre-loaded command templates (Linux, Docker, Kubernetes, etc.)
+- Click preset → shows common commands for that system
+- Click command → insert into terminal
+
+---
+
+### 🔒 Security & Lock
+
+**Master Password:**
+- Set on first launch
+- Encrypts all session credentials (AES-256-GCM)
+- Never leaves your machine
+
+**Session Lock:**
+- Click 🔒 in top-left → locks the app
+- Credentials wiped from memory
+- Click Unlock → re-enter master password to resume
+
+**Change Master Password:**
+- Click ⚙️ → "Change Master Password"
+- Re-encrypts all data with new password (zero data loss)
+
+**Factory Reset (Forgot Master Password?):**
+- From login screen: Click `⚠️ Factory Reset`
+- Erases ALL data (irreversible)
+- No password required
+
+**Backup & Restore:**
+- Click ⚙️ → "Export Sessions"
+- Set backup password → download encrypted JSON
+- Later: Click "Import Sessions" → select file + backup password
+- Choose: Merge (add new) or Replace (overwrite all)
+
+---
+
+## What's New in v1.2.0
+
+✨ **New Features:**
+- **Collapsible Sidebar** — toggle icon-rail mode (click any tab to auto-expand)
+- **Session Drag-to-Split** — drag session from list → drop on pane edge to create split
+- **Backup & Restore** — encrypted JSON export with backup passphrase
+- **Factory Reset** — wipe all data from login screen (no password needed)
+- **About Modal** — click version in status bar for app info & release notes
+
+---
+
+## 🏗️ Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                   DEFiNE-ZiON-AiTTY                      │
+├──────────────────────┬──────────────────────────────────┤
+│      Frontend        │         Backend                  │
+│  xterm.js (terminal) │  Node.js + Express               │
+│  Multi-tab + Split   │  WebSocket (SSH bridge)          │
+│  AI Chat Panel       │  ssh2 (SSH/SFTP client)          │
+│  SFTP Browser        │  AES-256-GCM encryption          │
+│  Settings Panel      │  Session & Snippet store         │
+│                      │  AI API proxy (Claude/GPT/etc.)  │
+└──────────────────────┴──────────────────────────────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              ▼              ▼              ▼
+       Anthropic API   OpenAI API    Google Gemini API
+```
+
+---
+
+## 📋 Roadmap
+
+```
+Phase 1: Genesis — ✅ COMPLETE
+  [x] High-performance web-SSH bridge
+  [x] Session & snippet management
+  [x] Split-view terminal
+  [x] SFTP browser
+  [x] Cross-platform launcher
+
+Phase 2: Fortress — ✅ COMPLETE
+  [x] AES-256-GCM encryption vault
+  [x] Multi-model AI panel
+  [x] AI Agent mode
+  [x] Terminal context bridge to AI
+
+Phase 3: Command Center — ✅ COMPLETE (v1.0.0)
+  [x] Focus Info Bar (live server stats)
+  [x] Tab drag-to-split
+  [x] Multi-server broadcast exec
+
+Phase 4: Power UX — ✅ COMPLETE (v1.2.0)
+  [x] Collapsible sidebar
+  [x] Session drag-to-split
+  [x] Backup/restore with encryption
+  [x] Factory reset from login
+  [x] About modal with version info
+
+Phase 5: Intelligence — 📅 UPCOMING
+  [ ] AI-native file manager (smart rename/organize)
+  [ ] Kubernetes & Docker dashboard
+  [ ] AI session history recovery
+  [ ] Streaming AI responses
+  [ ] Smart alert system (threshold notifications)
+
+Phase 6: Expansion — 📅 PLANNED
+  [ ] macOS Homebrew & Windows MSI installer
+  [ ] Custom AI prompt marketplace
+  [ ] Multi-user collaboration mode
+  [ ] Mobile-responsive UI
+  [ ] Plugin/extension system
+```
+
+---
+
+## 🛠️ Advanced Setup
+
+### Claude Code (Recommended — No API Key)
+
+Use your existing Claude Pro/Max subscription:
+
+```bash
+# Install CLI
 npm install -g @anthropic-ai/claude-code
+
+# Login
 claude login
 ```
 
-After login, restart AiTTY — `💻 Claude Code (Local)` will show **✓ Ready** in the AI sidebar automatically.
+After login, restart AiTTY — `💻 Claude Code (Local)` shows **✓ Ready**.
 
-**Option B — API Key**
+### API Key Setup
 
-1. Click the **AI** tab in the left sidebar.
-2. Click **Register** next to your preferred provider (Claude, GPT, Gemini, or Groq).
-3. Paste your API key — encrypted immediately, never leaves your machine.
+1. Click **AI** tab in sidebar
+2. Click **Register** next to your provider
+3. Paste API key → encrypted immediately
+4. Never leaves your machine
 
-> API key sources:
-> - Claude → [console.anthropic.com](https://console.anthropic.com)
-> - GPT → [platform.openai.com](https://platform.openai.com)
-> - Gemini → [aistudio.google.com](https://aistudio.google.com)
-> - Groq → [console.groq.com](https://console.groq.com)
-
-**Using AI in a terminal pane:**
-
-1. Open any terminal pane → click the **🤖** button to open the AI chat
-2. Ask anything: "Check disk usage", "Why is CPU high?", "Show k8s pod status"
-3. AI responds with the exact command to run — click **▶ Run** to execute in the SSH session
-4. Enable **Agent Mode** to let AI run commands and analyze results automatically in a loop
+**Get API keys:**
+- Claude → [console.anthropic.com](https://console.anthropic.com)
+- GPT → [platform.openai.com](https://platform.openai.com)
+- Gemini → [aistudio.google.com](https://aistudio.google.com)
+- Groq → [console.groq.com](https://console.groq.com)
 
 ---
 
-## Contributing
+## 🔑 SSH Key Setup
 
-Pull requests and issue reports are welcome. See [CONTRIBUTING](CONTRIBUTING.md) if it exists, or open an issue directly.
+### Generate SSH Key (if you don't have one)
+
+**Windows (PowerShell):**
+```powershell
+ssh-keygen -t rsa -b 4096 -f $env:USERPROFILE\.ssh\id_rsa
+```
+
+**macOS / Linux:**
+```bash
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
+```
+
+### Add Public Key to Remote Server
+
+```bash
+# From your local machine
+cat ~/.ssh/id_rsa.pub | ssh user@remote "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+```
+
+### Use Key in AiTTY
+
+1. Create new session
+2. Select **Private Key** option
+3. Paste contents of `~/.ssh/id_rsa` (entire file)
+4. Connect
 
 ---
 
-## License
+## ❓ FAQ
 
-MIT License — see the [LICENSE](LICENSE) file for details.
+**Q: Is my password/data safe?**  
+A: Yes. All credentials encrypted locally with AES-256-GCM. Encryption keys derived from your master password. Never sent anywhere.
+
+**Q: Can I use this over the internet?**  
+A: AiTTY runs on `127.0.0.1:7654` (localhost only) for security. For remote access, set up an SSH tunnel or deploy behind a VPN.
+
+**Q: What if I forgot my master password?**  
+A: Click `⚠️ Factory Reset` from the login screen (no password needed). This erases ALL data. Consider exporting a backup first.
+
+**Q: Can I use it with Windows Subsystem for Linux (WSL)?**  
+A: Yes. Install Node.js in WSL, run `node server.js`, then access from Windows browser at `http://127.0.0.1:7654`.
+
+**Q: Does it work with Bastion/Jump hosts?**  
+A: Not yet. Add the jump host as a separate session and SSH to your target from there.
+
+**Q: How much data can I store?**  
+A: Session credentials are stored in `data/sessions.json` (typically < 1 MB per 100 sessions). SFTP downloads are streamed to disk.
+
+**Q: Can multiple people use one instance?**  
+A: Currently no — single master password. Collaboration is Phase 6.
+
+---
+
+## 📦 Requirements
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| [Node.js](https://nodejs.org) | 18+ | Required |
+| [Git](https://git-scm.com) | Any | For cloning & updates |
+| SSH Server | Any | Remote machine to connect to |
+| AI API Key | — | Optional (only for API models) |
+
+---
+
+## 🤝 Contributing
+
+Pull requests and issues welcome! Found a bug? Have a feature idea? [Open an issue](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/issues).
+
+---
+
+## 📄 License
+
+MIT License — see [LICENSE](LICENSE) file.
 
 ---
 
@@ -545,5 +398,7 @@ MIT License — see the [LICENSE](LICENSE) file for details.
 
 [![GitHub](https://img.shields.io/badge/GitHub-DEFiNE0223-181717?style=for-the-badge&logo=github)](https://github.com/DEFiNE0223)
 [![Release](https://img.shields.io/badge/Release-v1.2.0-brightgreen?style=for-the-badge)](https://github.com/DEFiNE0223/DEFiNE-ZiON-AiTTY/releases/tag/v1.2.0)
+
+Made with ❤️ by [DEFiNE0223](https://github.com/DEFiNE0223)
 
 </div>
