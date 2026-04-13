@@ -1,0 +1,50 @@
+{
+  "permissions": {
+    "defaultMode": "plan",
+    "deny": [
+      "Edit(.claude/CLAUDE.md)",
+      "Write(.claude/CLAUDE.md)",
+      "Edit(.claude/settings.json)",
+      "Write(.claude/settings.json)"
+    ],
+    "ask": [
+      "Edit(routes/*)",
+      "Edit(public/js/*)",
+      "Edit(server.js)"
+    ],
+    "allow": [
+      "Read",
+      "Bash(npm:*)",
+      "Bash(git:*)",
+      "Bash(node:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "This operation attempts to modify a file in the AiTTY project. Verify this is intentional and follows the project guidelines in .claude/CLAUDE.md. Is this modification appropriate? Context: $ARGUMENTS"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\": \"✓ File modified. Review changes at: git diff\"}' || true"
+          }
+        ]
+      }
+    ]
+  },
+  "env": {
+    "AITTY_PROJECT": "true",
+    "REQUIRE_PLAN_MODE": "true"
+  }
+}
