@@ -221,8 +221,8 @@ Then open **http://127.0.0.1:7654** in your browser.
 ## 🏗️ Architecture
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                   DEFiNE-ZiON-AiTTY                      │
+┌─────────────────────────────────────────────────────────┐
+│                   DEFiNE-ZiON-AiTTY                     │
 ├──────────────────────┬──────────────────────────────────┤
 │      Frontend        │         Backend                  │
 │  xterm.js (terminal) │  Node.js + Express               │
